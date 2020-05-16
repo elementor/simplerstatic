@@ -14,16 +14,18 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Diagnostic {
 
-    /** @const */
+    /**
+     * @var mixed[]
+     */
     protected static $min_version = [
-        'php' => '5.3.0',
+        'php' => '7.3.0',
         'curl' => '7.15.0',
     ];
 
     /**
      * Assoc. array of categories, and then functions to check
      *
-     * @var array
+     * @var mixed[]
      */
     protected $description = [
         'URLs' => [],
@@ -52,7 +54,7 @@ class Diagnostic {
     /**
      * Assoc. array of results of the diagnostic check
      *
-     * @var array
+     * @var mixed[]
      */
     public $results = [];
 
@@ -109,6 +111,9 @@ class Diagnostic {
         }
     }
 
+    /**
+     * @return mixed[]
+     */
     public function is_destination_host_a_valid_url() {
         $destination_scheme = $this->options->get( 'destination_scheme' );
         $destination_host = $this->options->get( 'destination_host' );
@@ -120,14 +125,17 @@ class Diagnostic {
         ];
     }
 
-    public function is_additional_url_valid( $url ) {
-        $label = sprintf( __( 'Checking if Additional URL <code>%s</code> is valid', 'simplerstatic' ), $url );
+    /**
+     * @return mixed[]
+     */
+    public function is_additional_url_valid( string $url ) {
+        $label = sprintf( 'Checking if Additional URL <code>%s</code> is valid', $url );
         if ( filter_var( $url, FILTER_VALIDATE_URL ) === false ) {
             $test = false;
-            $message = __( 'Not a valid URL', 'simplerstatic' );
+            $message = 'Not a valid URL';
         } elseif ( ! Util::is_local_url( $url ) ) {
             $test = false;
-            $message = __( 'Not a local URL', 'simplerstatic' );
+            $message = 'Not a local URL';
         } else {
             $test = true;
             $message = null;
@@ -140,15 +148,17 @@ class Diagnostic {
         ];
     }
 
-    public function is_additional_file_valid( $file ) {
-        $label = sprintf( __( 'Checking if Additional File/Dir <code>%s</code> is valid', 'simplerstatic' ), $file );
+    /**
+     * @return mixed[]
+     */
+    public function is_additional_file_valid( string $file ) {
+        $label = sprintf( 'Checking if Additional File/Dir <code>%s</code> is valid', $file );
         if ( stripos( $file, get_home_path() ) !== 0 && stripos( $file, WP_PLUGIN_DIR ) !== 0 && stripos( $file, WP_CONTENT_DIR ) !== 0 ) {
             $test = false;
-            $message = __( 'Not a valid path', 'simplerstatic' );
+            $message = 'Not a valid path';
         } elseif ( ! is_readable( $file ) ) {
             $test = false;
-            $message = __( 'Not readable', 'simplerstatic' );
-
+            $message = 'Not readable';
         } else {
             $test = true;
             $message = null;
@@ -161,17 +171,23 @@ class Diagnostic {
         ];
     }
 
+    /**
+     * @return mixed[]
+     */
     public function is_permalink_structure_set() {
-        $label = __( 'Checking if WordPress permalink structure is set', 'simplerstatic' );
+        $label = 'Checking if WordPress permalink structure is set';
         return [
             'label' => $label,
             'test' => strlen( get_option( 'permalink_structure' ) ) !== 0,
         ];
     }
 
+    /**
+     * @return mixed[]
+     */
     public function can_wp_make_requests_to_itself() {
-        $ip_address = getHostByName( getHostName() );
-        $label = sprintf( __( 'Checking if WordPress can make requests to itself from <code>%s</code>', 'simplerstatic' ), $ip_address );
+        $ip_address = getHostByName( (string) getHostName() );
+        $label = sprintf( 'Checking if WordPress can make requests to itself from <code>%s</code>', $ip_address );
 
         $url = Util::origin_url();
         $response = Url_Fetcher::remote_get( $url );
@@ -186,10 +202,10 @@ class Diagnostic {
                 $message = $code;
             } elseif ( in_array( $code, Page::$processable_status_codes ) ) {
                 $test = false;
-                $message = sprintf( __( 'Received a %s response. This might indicate a problem.', 'simplerstatic' ), $code );
+                $message = sprintf( 'Received a %s response. This might indicate a problem.', $code );
             } else {
                 $test = false;
-                $message = sprintf( __( 'Received a %s response.', 'simplerstatic' ), $code );
+                $message = sprintf( 'Received a %s response.', $code );
 
             }
         }
@@ -201,6 +217,9 @@ class Diagnostic {
         ];
     }
 
+    /**
+     * @return mixed[]
+     */
     public function is_temp_files_dir_readable() {
         $temp_files_dir = $this->options->get( 'temp_files_dir' );
         $label = sprintf( __( 'Checking if web server can read from Temp Files Directory: <code>%s</code>', 'simplerstatic' ), $temp_files_dir );
@@ -210,6 +229,9 @@ class Diagnostic {
         ];
     }
 
+    /**
+     * @return mixed[]
+     */
     public function is_temp_files_dir_writeable() {
         $temp_files_dir = $this->options->get( 'temp_files_dir' );
         $label = sprintf( __( 'Checking if web server can write to Temp Files Directory: <code>%s</code>', 'simplerstatic' ), $temp_files_dir );
@@ -219,6 +241,9 @@ class Diagnostic {
         ];
     }
 
+    /**
+     * @return mixed[]
+     */
     public function is_local_dir_writeable() {
         $local_dir = $this->options->get( 'local_dir' );
         $label = sprintf( __( 'Checking if web server can write to Local Directory: <code>%s</code>', 'simplerstatic' ), $local_dir );
@@ -228,6 +253,9 @@ class Diagnostic {
         ];
     }
 
+    /**
+     * @return mixed[]
+     */
     public function user_can_delete() {
         $label = __( 'Checking if MySQL user has <code>DELETE</code> privilege', 'simplerstatic' );
         return [
@@ -236,6 +264,9 @@ class Diagnostic {
         ];
     }
 
+    /**
+     * @return mixed[]
+     */
     public function user_can_insert() {
         $label = __( 'Checking if MySQL user has <code>INSERT</code> privilege', 'simplerstatic' );
         return [
@@ -244,6 +275,9 @@ class Diagnostic {
         ];
     }
 
+    /**
+     * @return mixed[]
+     */
     public function user_can_select() {
         $label = __( 'Checking if MySQL user has <code>SELECT</code> privilege', 'simplerstatic' );
         return [
@@ -252,6 +286,9 @@ class Diagnostic {
         ];
     }
 
+    /**
+     * @return mixed[]
+     */
     public function user_can_create() {
         $label = __( 'Checking if MySQL user has <code>CREATE</code> privilege', 'simplerstatic' );
         return [
@@ -260,6 +297,9 @@ class Diagnostic {
         ];
     }
 
+    /**
+     * @return mixed[]
+     */
     public function user_can_alter() {
         $label = __( 'Checking if MySQL user has <code>ALTER</code> privilege', 'simplerstatic' );
         return [
@@ -268,6 +308,9 @@ class Diagnostic {
         ];
     }
 
+    /**
+     * @return mixed[]
+     */
     public function user_can_drop() {
         $label = __( 'Checking if MySQL user has <code>DROP</code> privilege', 'simplerstatic' );
         return [
@@ -276,19 +319,25 @@ class Diagnostic {
         ];
     }
 
+    /**
+     * @return mixed[]
+     */
     public function php_version() {
-        $label = sprintf( __( 'Checking if PHP version >= %s', 'simplerstatic' ), self::$min_version['php'] );
+        $label = sprintf( 'Checking if PHP version >= %s', self::$min_version['php'] );
         return [
             'label' => $label,
-            'test' => version_compare( phpversion(), self::$min_version['php'], '>=' ),
+            'test' => version_compare( (string) phpversion(), self::$min_version['php'], '>=' ),
             'message'  => phpversion(),
         ];
     }
 
+    /**
+     * @return mixed[]
+     */
     public function has_curl() {
         $label = __( 'Checking for cURL support', 'simplerstatic' );
 
-        if ( is_callable( 'curl_version' ) ) {
+        if ( function_exists('curl_version') ) {
             $version = curl_version();
             $test = version_compare( $version['version'], self::$min_version['curl'], '>=' );
             $message = $version['version'];

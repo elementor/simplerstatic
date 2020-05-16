@@ -15,8 +15,8 @@ class Create_Zip_Archive_Task extends Task {
         if ( is_wp_error( $download_url ) ) {
             return $download_url;
         } else {
-            $message = __( 'ZIP archive created: ', 'simplerstatic' );
-            $message .= ' <a href="' . $download_url . '">' . __( 'Click here to download', 'simplerstatic' ) . '</a>';
+            $message = 'ZIP archive created: ';
+            $message .= " <a href='$download_url'>Click here to download</a>";
             $this->save_status_message( $message );
             return true;
         }
@@ -40,7 +40,7 @@ class Create_Zip_Archive_Task extends Task {
         Util::debug_log( 'Creating zip archive' );
 
         foreach ( $iterator as $file_name => $file_object ) {
-            if ( $zip_archive->addFile( $file_object, str_replace( $archive_dir, '', $file_name ) ) === 0 ) {
+            if ( ! $zip_archive->addFile( $file_object, str_replace( $archive_dir, '', $file_name ) ) ) {
                 return new \WP_Error( 'create_zip_failed', 'Unable to create ZIP archive' );
             }
         }
