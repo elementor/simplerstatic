@@ -36,18 +36,23 @@ class Archive_Creation_Job extends \WP_Background_Process {
     /**
      * Array containing the list of tasks to process
      *
-     * @var array
+     * @var mixed[]
      */
     protected $task_list = [];
 
     /**
      * Performs initializion of the options structure
-     *
-     * @param string $option_key The options key name
      */
     public function __construct() {
         $this->options = Options::instance();
-        $this->task_list = apply_filters( 'simplerstatic.archive_creation_job.task_list', [], $this->options->get( 'delivery_method' ) );
+
+        // TODO: this may be phpstan caching, doesn't make sense to me
+        // @phpstan-ignore-next-line
+        $this->task_list = apply_filters(
+            'simplerstatic.archive_creation_job.task_list',
+            [],
+            $this->options->get( 'delivery_method' )
+        );
 
         if ( ! $this->is_job_done() ) {
             register_shutdown_function( [ $this, 'shutdown_handler' ] );
@@ -101,8 +106,8 @@ class Archive_Creation_Job extends \WP_Background_Process {
      * task name if we're done with the current one, or (c) returning false if
      * we're done with our job, which then runs complete().
      *
-     * @param string        $task Task name to process
-     * @return false|string       task name to process, or false if done
+     * @param string  $task_name Task name to process
+     * @return false|string  task name to process, or false if done
      */
     protected function task( $task_name ) {
         $this->set_current_task( $task_name );
@@ -133,10 +138,7 @@ class Archive_Creation_Job extends \WP_Background_Process {
         try {
             Util::debug_log( 'Performing task: ' . $task_name );
             $is_done = $task->perform();
-        } catch ( \WP_Error $e ) {
-            Util::debug_log( 'Caught an error' );
-            return $this->error_occurred( $e );
-        } catch ( \Exception $e ) {
+        } catch ( SimplerStaticException $e ) {
             Util::debug_log( 'Caught an exception' );
             return $this->exception_occurred( $e );
         }
@@ -157,14 +159,11 @@ class Archive_Creation_Job extends \WP_Background_Process {
                 // start the next task
                 return $next_task;
             }
-        } else { // $is_done === false
+        } else {
             Util::debug_log( "We're not done with the " . $task_name . ' task yet' );
             // returning current task name to continue processing
             return $task_name;
         }
-
-        Util::debug_log( "We shouldn't have gotten here; returning false to remove the " . $task_name . ' task from the queue' );
-        return false; // remove item from queue
     }
 
     /**
@@ -177,7 +176,7 @@ class Archive_Creation_Job extends \WP_Background_Process {
 
         $this->set_current_task( 'done' );
 
-        $end_time = Util::formatted_datetime();
+        $end_time = (string) Util::formatted_datetime();
         $start_time = $this->options->get( 'archive_start_time' );
         $duration = strtotime( $end_time ) - strtotime( $start_time );
         $time_string = gmdate( 'H:i:s', $duration );
@@ -248,9 +247,9 @@ class Archive_Creation_Job extends \WP_Background_Process {
     /**
      * Set the current task name
      *
-     * @param stroing $task_name The name of the current task
+     * @param string $task_name The name of the current task
      */
-    protected function set_current_task( $task_name ) {
+    protected function set_current_task( $task_name ) : void {
         $this->current_task = $task_name;
     }
 
@@ -261,13 +260,10 @@ class Archive_Creation_Job extends \WP_Background_Process {
      */
     protected function find_next_task() {
         $task_name = $this->get_current_task();
-        $index = array_search( $task_name, $this->task_list );
-        if ( $index === false ) {
-            return null;
-        }
-
+        $index = (int) array_search( $task_name, $this->task_list );
         $index += 1;
-        if ( ( $index ) >= count( $this->task_list ) ) {
+
+        if ( ! isset( $this->task_list[ $index ] ) ) {
             return null;
         } else {
             return $this->task_list[ $index ];
@@ -300,10 +296,9 @@ class Archive_Creation_Job extends \WP_Background_Process {
     /**
      * Add a status message about the exception and cancel the job
      *
-     * @param  Exception $exception The exception that occurred
-     * @return void
+     * @param SimplerStaticException $exception The exception that occurred
      */
-    protected function exception_occurred( $exception ) {
+    protected function exception_occurred( $exception ) : string {
         Util::debug_log( 'An exception occurred: ' . $exception->getMessage() );
         Util::debug_log( $exception );
         $message = sprintf( __( 'An exception occurred: %s', 'simplerstatic' ), $exception->getMessage() );
@@ -314,13 +309,12 @@ class Archive_Creation_Job extends \WP_Background_Process {
     /**
      * Add a status message about the error and cancel the job
      *
-     * @param  WP_Error $wp_error The error that occurred
-     * @return void
+     * @param \WP_Error $wp_error The error that occurred
      */
-    protected function error_occurred( $wp_error ) {
+    protected function error_occurred( $wp_error ) : string {
         Util::debug_log( 'An error occurred: ' . $wp_error->get_error_message() );
         Util::debug_log( $wp_error );
-        $message = sprintf( __( 'An error occurred: %s', 'simplerstatic' ), $wp_error->get_error_message() );
+        $message = sprintf('An error occurred: %s', $wp_error->get_error_message() );
         $this->save_status_message( $message, 'error' );
         return 'cancel';
     }
