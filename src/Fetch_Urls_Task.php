@@ -21,7 +21,7 @@ class Fetch_Urls_Task extends Task {
     /**
      * Fetch and save pages for the static archive
      *
-     * @return boolean|WP_Error true if done, false if not done, WP_Error if error
+     * @return bool true if done, false if not done
      */
     public function perform() {
         // TODO: set as configurable option for performance
@@ -42,7 +42,7 @@ class Fetch_Urls_Task extends Task {
             Util::debug_log( 'URL: ' . $static_page->url );
 
             $excludable = $this->find_excludable( $static_page );
-            if ( $excludable !== false ) {
+            if ( is_array( $excludable ) ) {
                 $save_file = $excludable['do_not_save'] !== '1';
                 $follow_urls = $excludable['do_not_follow'] !== '1';
                 // Util::debug_log(
@@ -95,12 +95,14 @@ class Fetch_Urls_Task extends Task {
     /**
      * Process the response for a 200 response (success)
      *
-     * @param  SimplerStatic\Page $static_page Record to update
+     * @param  Page $static_page Record to update
      * @param  boolean            $save_file   Save a static copy of the page?
      * @param  boolean            $follow_urls Save found URLs to database?
      * @return void
      */
     protected function handle_200_response( $static_page, $save_file, $follow_urls ) {
+        $urls = [];
+
         if ( $save_file || $follow_urls ) {
             // Util::debug_log( "Extracting URLs and replacing URLs in the static file" );
             // Fetch all URLs from the page and add them to the queue...
@@ -110,6 +112,7 @@ class Fetch_Urls_Task extends Task {
 
         if ( $follow_urls ) {
             Util::debug_log( 'Adding ' . sizeof( $urls ) . ' URLs to the queue' );
+
             foreach ( $urls as $url ) {
                 $this->set_url_found_on( $static_page, $url );
             }
@@ -142,7 +145,7 @@ class Fetch_Urls_Task extends Task {
     /**
      * Process the response to a 30x redirection
      *
-     * @param  SimplerStatic\Page         $static_page Record to update
+     * @param  Page         $static_page Record to update
      * @param  boolean            $save_file   Save a static copy of the page?
      * @param  boolean            $follow_urls   Save redirect URL to database?
      * @return void
@@ -170,10 +173,20 @@ class Fetch_Urls_Task extends Task {
                 // http to https. Instead just add the new url to the queue.
                 // TODO: Make this less horrible.
             } elseif (
-            Util::strip_index_filenames_from_url( Util::remove_params_and_fragment( Util::strip_protocol_from_url( $redirect_url ) ) ) ===
-            Util::strip_index_filenames_from_url( Util::remove_params_and_fragment( Util::strip_protocol_from_url( $current_url ) ) ) ) {
-
-                Util::debug_log( 'This looks like a redirect from http to https (or visa versa); adding new URL to the queue' );
+                Util::strip_index_filenames_from_url(
+                    (string) Util::remove_params_and_fragment(
+                        (string) Util::strip_protocol_from_url( (string) $redirect_url )
+                    )
+                ) ===
+                Util::strip_index_filenames_from_url(
+                    (string) Util::remove_params_and_fragment(
+                        (string) Util::strip_protocol_from_url( (string) $current_url )
+                    )
+                )
+            ) {
+                Util::debug_log(
+                    'This looks like a redirect from http to https (or visa versa); adding new URL to the queue'
+                );
                 $this->set_url_found_on( $static_page, $redirect_url );
 
             } else {
@@ -201,8 +214,16 @@ class Fetch_Urls_Task extends Task {
                         ->assign( 'redirect_url', $redirect_url )
                         ->render_to_string();
 
-                    $filename = $this->save_static_page_content_to_file( $static_page, $content );
-                    if ( $filename ) {
+                    if ( ! is_string( $content ) ) {
+                        $content = '';
+                    }
+
+                    $filename = $this->save_static_page_content_to_file(
+                        $static_page,
+                        $content
+                    );
+
+                    if ( is_string( $filename ) ) {
                         $static_page->file_path = $filename;
                     }
 
@@ -224,7 +245,10 @@ class Fetch_Urls_Task extends Task {
         }
     }
 
-    protected function find_excludable( $static_page ) {
+    /**
+     * @return mixed[]|bool
+     */
+    protected function find_excludable( Page $static_page ) {
         $url = $static_page->url;
         $excludables = [];
         foreach ( $this->options->get( 'urls_to_exclude' ) as $excludable ) {
@@ -242,13 +266,12 @@ class Fetch_Urls_Task extends Task {
     /**
      * Set ID for which page a URL was found on (& create page if not in DB yet)
      *
-     * Given a URL, find the associated SimplerStatic\Page, and then set the ID
+     * Given a URL, find the associated Page, and then set the ID
      * for which page it was found on if the ID isn't yet set or if the record
      * hasn't been updated in this instance of static generation yet.
      *
-     * @param SimplerStatic\Page $static_page The record for the parent page
+     * @param Page $static_page The record for the parent page
      * @param string             $child_url   The URL of the child page
-     * @param string             $start_time  Static generation start time
      * @return void
      */
     protected function set_url_found_on( $static_page, $child_url ) {
@@ -262,9 +285,9 @@ class Fetch_Urls_Task extends Task {
     /**
      * Save the contents of a page to a file in our archive directory
      *
-     * @param SimplerStatic\Page $static_page The SimplerStatic\Page record
+     * @param Page $static_page The Page record
      * @param string             $content The content of the page we want to save
-     * @return string|null                The file path of the saved file
+     * @return string|void                The file path of the saved file
      */
     protected function save_static_page_content_to_file( $static_page, $content ) {
         $relative_filename = Url_Fetcher::instance()->create_directories_for_static_page( $static_page );
@@ -279,7 +302,7 @@ class Fetch_Urls_Task extends Task {
                 return $relative_filename;
             }
         } else {
-            return null;
+            return;
         }
     }
 }

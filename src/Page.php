@@ -49,7 +49,7 @@ class Page extends Model {
      */
     public $redirect_url;
     /**
-     * @var string
+     * @var string|null
      */
     public $file_path;
     /**
