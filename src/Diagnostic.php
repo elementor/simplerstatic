@@ -3,7 +3,7 @@ namespace SimplerStatic;
 
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+    exit;
 }
 
 /**
@@ -14,289 +14,294 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Diagnostic {
 
-	/** @const */
-	protected static $min_version = array(
-		'php' => '5.3.0',
-		'curl' => '7.15.0'
-	);
+    /** @const */
+    protected static $min_version = [
+        'php' => '5.3.0',
+        'curl' => '7.15.0',
+    ];
 
-	/**
-	 * Assoc. array of categories, and then functions to check
-	 * @var array
-	 */
-	protected $description = array(
-		'URLs' => array(),
-		'Filesystem' => array(
-			array( 'function' => 'is_temp_files_dir_readable' ),
-			array( 'function' => 'is_temp_files_dir_writeable' )
-		),
-		'WordPress' => array(
-			array( 'function' => 'is_permalink_structure_set' ),
-			array( 'function' => 'can_wp_make_requests_to_itself' )
-		),
-		'MySQL' => array(
-			array( 'function' => 'user_can_delete' ),
-			array( 'function' => 'user_can_insert' ),
-			array( 'function' => 'user_can_select' ),
-			array( 'function' => 'user_can_create' ),
-			array( 'function' => 'user_can_alter' ),
-			array( 'function' => 'user_can_drop' )
-		),
-		'PHP' => array(
-			array( 'function' => 'php_version' ),
-			array( 'function' => 'has_curl' )
-		)
-	);
+    /**
+     * Assoc. array of categories, and then functions to check
+     *
+     * @var array
+     */
+    protected $description = [
+        'URLs' => [],
+        'Filesystem' => [
+            [ 'function' => 'is_temp_files_dir_readable' ],
+            [ 'function' => 'is_temp_files_dir_writeable' ],
+        ],
+        'WordPress' => [
+            [ 'function' => 'is_permalink_structure_set' ],
+            [ 'function' => 'can_wp_make_requests_to_itself' ],
+        ],
+        'MySQL' => [
+            [ 'function' => 'user_can_delete' ],
+            [ 'function' => 'user_can_insert' ],
+            [ 'function' => 'user_can_select' ],
+            [ 'function' => 'user_can_create' ],
+            [ 'function' => 'user_can_alter' ],
+            [ 'function' => 'user_can_drop' ],
+        ],
+        'PHP' => [
+            [ 'function' => 'php_version' ],
+            [ 'function' => 'has_curl' ],
+        ],
+    ];
 
-	/**
-	 * Assoc. array of results of the diagnostic check
-	 * @var array
-	 */
-	public $results = array();
+    /**
+     * Assoc. array of results of the diagnostic check
+     *
+     * @var array
+     */
+    public $results = [];
 
-	/**
-	 * An instance of the options structure containing all options for this plugin
-	 * @var SimplerStatic\Options
-	 */
-	protected $options = null;
+    /**
+     * An instance of the options structure containing all options for this plugin
+     *
+     * @var SimplerStatic\Options
+     */
+    protected $options = null;
 
-	public function __construct() {
-		$this->options = Options::instance();
+    public function __construct() {
+        $this->options = Options::instance();
 
-		if ( $this->options->get( 'destination_url_type' ) == 'absolute' ) {
-			$this->description['URLs'][] = array(
-				'function' => 'is_destination_host_a_valid_url'
-			);
-		}
+        if ( $this->options->get( 'destination_url_type' ) == 'absolute' ) {
+            $this->description['URLs'][] = [
+                'function' => 'is_destination_host_a_valid_url',
+            ];
+        }
 
-		if ( $this->options->get( 'delivery_method' ) == 'local' ) {
-			$this->description['Filesystem'][] = array(
-				'function' => 'is_local_dir_writeable'
-			);
-		}
+        if ( $this->options->get( 'delivery_method' ) == 'local' ) {
+            $this->description['Filesystem'][] = [
+                'function' => 'is_local_dir_writeable',
+            ];
+        }
 
-		$additional_urls = Util::string_to_array( $this->options->get( 'additional_urls' ) );
-		foreach ( $additional_urls as $url ) {
-			$this->description['URLs'][] = array(
-				'function' => 'is_additional_url_valid',
-				'param' => $url
-			);
-		}
+        $additional_urls = Util::string_to_array( $this->options->get( 'additional_urls' ) );
+        foreach ( $additional_urls as $url ) {
+            $this->description['URLs'][] = [
+                'function' => 'is_additional_url_valid',
+                'param' => $url,
+            ];
+        }
 
-		$additional_files = Util::string_to_array( $this->options->get( 'additional_files' ) );
-		foreach ( $additional_files as $file ) {
-			$this->description['Filesystem'][] = array(
-				'function' => 'is_additional_file_valid',
-				'param' => $file
-			);
-		}
+        $additional_files = Util::string_to_array( $this->options->get( 'additional_files' ) );
+        foreach ( $additional_files as $file ) {
+            $this->description['Filesystem'][] = [
+                'function' => 'is_additional_file_valid',
+                'param' => $file,
+            ];
+        }
 
-		foreach ( $this->description as $title => $tests ) {
-			$this->results[ $title ] = array();
-			foreach ( $tests as $test ) {
-				$param = isset( $test['param'] ) ? $test['param'] : null;
-				$result = $this->{$test['function']}( $param );
+        foreach ( $this->description as $title => $tests ) {
+            $this->results[ $title ] = [];
+            foreach ( $tests as $test ) {
+                $param = isset( $test['param'] ) ? $test['param'] : null;
+                $result = $this->{$test['function']}( $param );
 
-				if ( ! isset( $result['message'] ) ) {
-					$result['message'] = $result['test'] ? __( 'OK', 'simplerstatic' ) : __( 'FAIL', 'simplerstatic' );
-				}
+                if ( ! isset( $result['message'] ) ) {
+                    $result['message'] = $result['test'] ? __( 'OK', 'simplerstatic' ) : __( 'FAIL', 'simplerstatic' );
+                }
 
-				$this->results[ $title ][] = $result;
-			}
-		}
-	}
+                $this->results[ $title ][] = $result;
+            }
+        }
+    }
 
-	public function is_destination_host_a_valid_url() {
-		$destination_scheme = $this->options->get( 'destination_scheme' );
-		$destination_host = $this->options->get( 'destination_host' );
-		$destination_url = $destination_scheme . $destination_host;
-		$label = sprintf( __( 'Checking if Destination URL <code>%s</code> is valid', 'simplerstatic' ), $destination_url );
-		return array(
-			'label' => $label,
-			'test' => filter_var( $destination_url, FILTER_VALIDATE_URL ) !== false
-		);
-	}
+    public function is_destination_host_a_valid_url() {
+        $destination_scheme = $this->options->get( 'destination_scheme' );
+        $destination_host = $this->options->get( 'destination_host' );
+        $destination_url = $destination_scheme . $destination_host;
+        $label = sprintf( __( 'Checking if Destination URL <code>%s</code> is valid', 'simplerstatic' ), $destination_url );
+        return [
+            'label' => $label,
+            'test' => filter_var( $destination_url, FILTER_VALIDATE_URL ) !== false,
+        ];
+    }
 
-	public function is_additional_url_valid( $url ) {
-		$label = sprintf( __( 'Checking if Additional URL <code>%s</code> is valid', 'simplerstatic' ), $url );
-		if ( filter_var( $url, FILTER_VALIDATE_URL ) === false ) {
-			$test = false;
-			$message = __( 'Not a valid URL', 'simplerstatic' );
-		} else if ( ! Util::is_local_url( $url ) ) {
-			$test = false;
-			$message = __( 'Not a local URL', 'simplerstatic' );
-		} else {
-			$test = true;
-			$message = null;
-		}
+    public function is_additional_url_valid( $url ) {
+        $label = sprintf( __( 'Checking if Additional URL <code>%s</code> is valid', 'simplerstatic' ), $url );
+        if ( filter_var( $url, FILTER_VALIDATE_URL ) === false ) {
+            $test = false;
+            $message = __( 'Not a valid URL', 'simplerstatic' );
+        } elseif ( ! Util::is_local_url( $url ) ) {
+            $test = false;
+            $message = __( 'Not a local URL', 'simplerstatic' );
+        } else {
+            $test = true;
+            $message = null;
+        }
 
-		return array(
-			'label' => $label,
-			'test' => $test,
-			'message' => $message
-		);
-	}
+        return [
+            'label' => $label,
+            'test' => $test,
+            'message' => $message,
+        ];
+    }
 
-	public function is_additional_file_valid( $file ) {
-		$label = sprintf( __( 'Checking if Additional File/Dir <code>%s</code> is valid', 'simplerstatic' ), $file );
-		if ( stripos( $file, get_home_path() ) !== 0 && stripos( $file, WP_PLUGIN_DIR ) !== 0 && stripos( $file, WP_CONTENT_DIR ) !== 0 ) {
-			$test = false;
-			$message = __( 'Not a valid path', 'simplerstatic' );
-		} else if ( ! is_readable( $file ) ) {
-			$test = false;
-			$message = __( 'Not readable', 'simplerstatic' );;
-		} else {
-			$test = true;
-			$message = null;
-		}
+    public function is_additional_file_valid( $file ) {
+        $label = sprintf( __( 'Checking if Additional File/Dir <code>%s</code> is valid', 'simplerstatic' ), $file );
+        if ( stripos( $file, get_home_path() ) !== 0 && stripos( $file, WP_PLUGIN_DIR ) !== 0 && stripos( $file, WP_CONTENT_DIR ) !== 0 ) {
+            $test = false;
+            $message = __( 'Not a valid path', 'simplerstatic' );
+        } elseif ( ! is_readable( $file ) ) {
+            $test = false;
+            $message = __( 'Not readable', 'simplerstatic' );
 
-		return array(
-			'label' => $label,
-			'test' => $test,
-			'message' => $message
-		);
-	}
+        } else {
+            $test = true;
+            $message = null;
+        }
 
-	public function is_permalink_structure_set() {
-		$label = __( 'Checking if WordPress permalink structure is set', 'simplerstatic' );
-		return array(
-			'label' => $label,
-			'test' => strlen( get_option( 'permalink_structure' ) ) !== 0
-		);
-	}
+        return [
+            'label' => $label,
+            'test' => $test,
+            'message' => $message,
+        ];
+    }
 
-	public function can_wp_make_requests_to_itself() {
-		$ip_address = getHostByName( getHostName() );
-		$label = sprintf( __( "Checking if WordPress can make requests to itself from <code>%s</code>", 'simplerstatic' ), $ip_address );
+    public function is_permalink_structure_set() {
+        $label = __( 'Checking if WordPress permalink structure is set', 'simplerstatic' );
+        return [
+            'label' => $label,
+            'test' => strlen( get_option( 'permalink_structure' ) ) !== 0,
+        ];
+    }
 
-		$url = Util::origin_url();
-		$response = Url_Fetcher::remote_get( $url );
+    public function can_wp_make_requests_to_itself() {
+        $ip_address = getHostByName( getHostName() );
+        $label = sprintf( __( 'Checking if WordPress can make requests to itself from <code>%s</code>', 'simplerstatic' ), $ip_address );
 
-		if ( is_wp_error( $response ) ) {
-			$test = false;
-			$message = null;
-		} else {
-			$code = $response['response']['code'];
-			if ( $code == 200 ) {
-				$test = true;
-				$message = $code;
-			} else if ( in_array( $code, Page::$processable_status_codes ) ) {
-				$test = false;
-				$message = sprintf( __( "Received a %s response. This might indicate a problem.", 'simplerstatic' ), $code );
-			} else {
-				$test = false;
-				$message = sprintf( __( "Received a %s response.", 'simplerstatic' ), $code );;
-			}
-		}
+        $url = Util::origin_url();
+        $response = Url_Fetcher::remote_get( $url );
 
-		return array(
-			'label' => $label,
-			'test' => $test,
-			'message' => $message
-		);
-	}
+        if ( is_wp_error( $response ) ) {
+            $test = false;
+            $message = null;
+        } else {
+            $code = $response['response']['code'];
+            if ( $code == 200 ) {
+                $test = true;
+                $message = $code;
+            } elseif ( in_array( $code, Page::$processable_status_codes ) ) {
+                $test = false;
+                $message = sprintf( __( 'Received a %s response. This might indicate a problem.', 'simplerstatic' ), $code );
+            } else {
+                $test = false;
+                $message = sprintf( __( 'Received a %s response.', 'simplerstatic' ), $code );
 
-	public function is_temp_files_dir_readable() {
-		$temp_files_dir = $this->options->get( 'temp_files_dir' );
-		$label = sprintf( __( "Checking if web server can read from Temp Files Directory: <code>%s</code>", 'simplerstatic' ), $temp_files_dir );
-		return array(
-			'label' => $label,
-			'test' => is_readable( $temp_files_dir )
-		);
-	}
+            }
+        }
 
-	public function is_temp_files_dir_writeable() {
-		$temp_files_dir = $this->options->get( 'temp_files_dir' );
-		$label = sprintf( __( "Checking if web server can write to Temp Files Directory: <code>%s</code>", 'simplerstatic' ), $temp_files_dir );
-		return array(
-			'label' => $label,
-			'test' => is_writable( $temp_files_dir )
-		);
-	}
+        return [
+            'label' => $label,
+            'test' => $test,
+            'message' => $message,
+        ];
+    }
 
-	public function is_local_dir_writeable() {
-		$local_dir = $this->options->get( 'local_dir' );
-		$label = sprintf( __( "Checking if web server can write to Local Directory: <code>%s</code>", 'simplerstatic' ), $local_dir );
-		return array(
-			'label' => $label,
-			'test' => is_writable( $local_dir )
-		);
-	}
+    public function is_temp_files_dir_readable() {
+        $temp_files_dir = $this->options->get( 'temp_files_dir' );
+        $label = sprintf( __( 'Checking if web server can read from Temp Files Directory: <code>%s</code>', 'simplerstatic' ), $temp_files_dir );
+        return [
+            'label' => $label,
+            'test' => is_readable( $temp_files_dir ),
+        ];
+    }
 
-	public function user_can_delete() {
-		$label = __( 'Checking if MySQL user has <code>DELETE</code> privilege', 'simplerstatic' );
-		return array(
-			'label' => $label,
-			'test' => Sql_Permissions::instance()->can( 'delete' )
-		);
-	}
+    public function is_temp_files_dir_writeable() {
+        $temp_files_dir = $this->options->get( 'temp_files_dir' );
+        $label = sprintf( __( 'Checking if web server can write to Temp Files Directory: <code>%s</code>', 'simplerstatic' ), $temp_files_dir );
+        return [
+            'label' => $label,
+            'test' => is_writable( $temp_files_dir ),
+        ];
+    }
 
-	public function user_can_insert() {
-		$label = __( 'Checking if MySQL user has <code>INSERT</code> privilege', 'simplerstatic' );
-		return array(
-			'label' => $label,
-			'test' => Sql_Permissions::instance()->can( 'insert' )
-		);
-	}
+    public function is_local_dir_writeable() {
+        $local_dir = $this->options->get( 'local_dir' );
+        $label = sprintf( __( 'Checking if web server can write to Local Directory: <code>%s</code>', 'simplerstatic' ), $local_dir );
+        return [
+            'label' => $label,
+            'test' => is_writable( $local_dir ),
+        ];
+    }
 
-	public function user_can_select() {
-		$label = __( 'Checking if MySQL user has <code>SELECT</code> privilege', 'simplerstatic' );
-		return array(
-			'label' => $label,
-			'test' => Sql_Permissions::instance()->can( 'select' )
-		);
-	}
+    public function user_can_delete() {
+        $label = __( 'Checking if MySQL user has <code>DELETE</code> privilege', 'simplerstatic' );
+        return [
+            'label' => $label,
+            'test' => Sql_Permissions::instance()->can( 'delete' ),
+        ];
+    }
 
-	public function user_can_create() {
-		$label = __( 'Checking if MySQL user has <code>CREATE</code> privilege', 'simplerstatic' );
-		return array(
-			'label' => $label,
-			'test' => Sql_Permissions::instance()->can( 'create' )
-		);
-	}
+    public function user_can_insert() {
+        $label = __( 'Checking if MySQL user has <code>INSERT</code> privilege', 'simplerstatic' );
+        return [
+            'label' => $label,
+            'test' => Sql_Permissions::instance()->can( 'insert' ),
+        ];
+    }
 
-	public function user_can_alter() {
-		$label = __( 'Checking if MySQL user has <code>ALTER</code> privilege', 'simplerstatic' );
-		return array(
-			'label' => $label,
-			'test' => Sql_Permissions::instance()->can( 'alter' )
-		);
-	}
+    public function user_can_select() {
+        $label = __( 'Checking if MySQL user has <code>SELECT</code> privilege', 'simplerstatic' );
+        return [
+            'label' => $label,
+            'test' => Sql_Permissions::instance()->can( 'select' ),
+        ];
+    }
 
-	public function user_can_drop() {
-		$label = __( 'Checking if MySQL user has <code>DROP</code> privilege', 'simplerstatic' );
-		return array(
-			'label' => $label,
-			'test' => Sql_Permissions::instance()->can( 'drop' )
-		);
-	}
+    public function user_can_create() {
+        $label = __( 'Checking if MySQL user has <code>CREATE</code> privilege', 'simplerstatic' );
+        return [
+            'label' => $label,
+            'test' => Sql_Permissions::instance()->can( 'create' ),
+        ];
+    }
 
-	public function php_version() {
-		$label = sprintf( __( 'Checking if PHP version >= %s', 'simplerstatic' ), self::$min_version['php'] );
-		return array(
-			'label' => $label,
-			'test' => version_compare( phpversion(), self::$min_version['php'], '>=' ),
-			'message'  => phpversion(),
-		);
-	}
+    public function user_can_alter() {
+        $label = __( 'Checking if MySQL user has <code>ALTER</code> privilege', 'simplerstatic' );
+        return [
+            'label' => $label,
+            'test' => Sql_Permissions::instance()->can( 'alter' ),
+        ];
+    }
 
-	public function has_curl() {
-		$label = __( 'Checking for cURL support', 'simplerstatic' );
+    public function user_can_drop() {
+        $label = __( 'Checking if MySQL user has <code>DROP</code> privilege', 'simplerstatic' );
+        return [
+            'label' => $label,
+            'test' => Sql_Permissions::instance()->can( 'drop' ),
+        ];
+    }
 
-		if ( is_callable( 'curl_version' ) ) {
-			$version = curl_version();
-			$test = version_compare( $version['version'], self::$min_version['curl'], '>=' );
-			$message = $version['version'];
-		} else {
-			$test = false;
-			$message = null;
-		}
+    public function php_version() {
+        $label = sprintf( __( 'Checking if PHP version >= %s', 'simplerstatic' ), self::$min_version['php'] );
+        return [
+            'label' => $label,
+            'test' => version_compare( phpversion(), self::$min_version['php'], '>=' ),
+            'message'  => phpversion(),
+        ];
+    }
 
-		return array(
-			'label' => $label,
-			'test' => $test,
-			'message'  => $message,
-		);
-	}
+    public function has_curl() {
+        $label = __( 'Checking for cURL support', 'simplerstatic' );
+
+        if ( is_callable( 'curl_version' ) ) {
+            $version = curl_version();
+            $test = version_compare( $version['version'], self::$min_version['curl'], '>=' );
+            $message = $version['version'];
+        } else {
+            $test = false;
+            $message = null;
+        }
+
+        return [
+            'label' => $label,
+            'test' => $test,
+            'message'  => $message,
+        ];
+    }
 
 }
