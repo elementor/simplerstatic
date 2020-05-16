@@ -27,7 +27,7 @@ class Plugin {
     /**
      * Singleton instance
      *
-     * @var SimplerStatic
+     * @var Plugin
      */
     protected static $instance = null;
 
@@ -83,7 +83,7 @@ class Plugin {
     /**
      * Return an instance of the Simpler Static plugin
      *
-     * @return SimplerStatic
+     * @return Plugin
      */
     public static function instance() {
         if ( null === self::$instance ) {
@@ -114,7 +114,12 @@ class Plugin {
             self::$instance->view = new View();
             self::$instance->archive_creation_job = new Archive_Creation_Job();
 
-            $page = isset( $_GET['page'] ) ? $_GET['page'] : '';
+            $page = (string) filter_input(
+                INPUT_GET,
+                'page',
+                FILTER_SANITIZE_STRING
+            );
+
             self::$instance->current_page = $page;
 
             Upgrade_Handler::run();
@@ -215,7 +220,7 @@ class Plugin {
             die( __( 'Not permitted', 'simplerstatic' ) );
         }
 
-        $action = $_POST['perform'];
+        $action = (string) filter_input( INPUT_POST, 'perform', FILTER_SANITIZE_STRING );
 
         if ( $action === 'start' ) {
             Util::delete_debug_log();
@@ -290,8 +295,8 @@ class Plugin {
             die( __( 'Not permitted', 'simplerstatic' ) );
         }
 
-        $per_page = $_POST['per_page'];
-        $current_page = $_POST['page'];
+        $per_page = filter_input( INPUT_POST, 'per_page', FILTER_SANITIZE_NUMBER_INT );
+        $current_page = filter_input( INPUT_POST, 'page', FILTER_SANITIZE_NUMBER_INT );
         $offset = ( intval( $current_page ) - 1 ) * intval( $per_page );
 
         $static_pages = Page::query()
@@ -342,9 +347,12 @@ class Plugin {
      * @return void
      */
     public function display_settings_page() {
-        if ( isset( $_POST['_settings'] ) ) {
+        $settings = filter_input( INPUT_POST, '_settings', FILTER_SANITIZE_STRING );
+        $reset = filter_input( INPUT_POST, '_reset', FILTER_SANITIZE_STRING );
+
+        if ( $settings ) {
             $this->save_options();
-        } elseif ( isset( $_POST['_reset'] ) ) {
+        } elseif ( $reset ) {
             $this->reset_plugin();
         }
 
@@ -418,9 +426,12 @@ class Plugin {
         // Checking $_POST array to see if fields exist. The fields are disabled
         // if the digest is set, but fetch_post_value() would still return them
         // as empty strings.
-        if ( isset( $_POST['basic_auth_username'] ) && isset( $_POST['basic_auth_password'] ) ) {
-            $basic_auth_user = trim( $this->fetch_post_value( 'basic_auth_username' ) );
-            $basic_auth_pass = trim( $this->fetch_post_value( 'basic_auth_password' ) );
+        $user = filter_input( INPUT_POST, 'basic_auth_username', FILTER_SANITIZE_STRING );
+        $pass = filter_input( INPUT_POST, 'basic_auth_password', FILTER_SANITIZE_STRING );
+
+        if ( $user && $pass ) {
+            $basic_auth_user = trim( (string) $this->fetch_post_value( 'basic_auth_username' ) );
+            $basic_auth_pass = trim( (string) $this->fetch_post_value( 'basic_auth_password' ) );
 
             if ( $basic_auth_user != '' && $basic_auth_pass != '' ) {
                 $http_basic_auth_digest = base64_encode( $basic_auth_user . ':' . $basic_auth_pass );
@@ -455,7 +466,8 @@ class Plugin {
      * @return void
      */
     public function display_diagnostics_page() {
-        if ( isset( $_POST['_diagnostics'] ) ) {
+        $diagnostics = filter_input( INPUT_POST, '_diagnostics', FILTER_SANITIZE_STRING );
+        if ( $diagnostics ) {
             $this->save_diagnostics_options();
         }
 
@@ -613,11 +625,10 @@ class Plugin {
 
     /**
      * Check for a pending file download; prompt user to download file
-     *
-     * @return null
      */
-    public function download_file() {
-        $file_name = isset( $_GET[ self::SLUG . '_zip_download' ] ) ? $_GET[ self::SLUG . '_zip_download' ] : null;
+    public function download_file() : void {
+        $file_name = filter_input( INPUT_GET, self::SLUG . '_zip_download', FILTER_SANITIZE_STRING );
+
         if ( $file_name ) {
             if ( ! current_user_can( 'edit_posts' ) ) {
                 die( __( 'Not permitted', 'simplerstatic' ) );
