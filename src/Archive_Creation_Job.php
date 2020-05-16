@@ -49,7 +49,7 @@ class Archive_Creation_Job extends \WP_Background_Process {
         // TODO: this may be phpstan caching, doesn't make sense to me
         // @phpstan-ignore-next-line
         $this->task_list = apply_filters(
-            'simplerstatic.archive_creation_job.task_list',
+            'simplerstatic_archive_creation_job_task_list',
             [],
             $this->options->get( 'delivery_method' )
         );
@@ -151,7 +151,9 @@ class Archive_Creation_Job extends \WP_Background_Process {
             // finished current task, try to find the next one
             $next_task = $this->find_next_task();
             if ( $next_task === null ) {
-                Util::debug_log( 'This task is done and there are no more tasks, time to complete the job' );
+                Util::debug_log(
+                    'This task is done and there are no more tasks, time to complete the job'
+                );
                 // we're done; returning false to remove item from queue
                 return false;
             } else {
@@ -183,7 +185,7 @@ class Archive_Creation_Job extends \WP_Background_Process {
 
         $this->options->set( 'archive_end_time', $end_time );
 
-        $this->save_status_message( sprintf( __( 'Done! Finished in %s', 'simplerstatic' ), $time_string ) );
+        $this->save_status_message( sprintf( 'Done! Finished in %s', $time_string ) );
         parent::complete();
     }
 
@@ -206,7 +208,10 @@ class Archive_Creation_Job extends \WP_Background_Process {
                 $this->push_to_queue( 'cancel' )
                     ->save();
             } else {
-                Util::debug_log( "The queue isn't empty; overwriting current task with a cancel task" );
+                Util::debug_log(
+                    "The queue isn't empty; overwriting current task with a cancel task"
+                );
+
                 // unlock the process so that we can force our cancel task to process
                 $this->unlock_process();
 
@@ -232,7 +237,8 @@ class Archive_Creation_Job extends \WP_Background_Process {
         $end_time = $this->options->get( 'archive_end_time' );
         // we're done if the start and end time are null (never run) or if
         // the start and end times are both set
-        return ( $start_time == null && $end_time == null ) || ( $start_time != null && $end_time != null );
+        return ( $start_time == null && $end_time == null ) ||
+            ( $start_time != null && $end_time != null );
     }
 
     /**
@@ -261,7 +267,7 @@ class Archive_Creation_Job extends \WP_Background_Process {
     protected function find_next_task() {
         $task_name = $this->get_current_task();
         $index = (int) array_search( $task_name, $this->task_list );
-        $index += 1;
+        ++$index;
 
         if ( ! isset( $this->task_list[ $index ] ) ) {
             return null;
@@ -282,7 +288,7 @@ class Archive_Creation_Job extends \WP_Background_Process {
      * @return void
      */
     protected function save_status_message( $message, $key = null ) {
-        $task_name = $key ?: $this->get_current_task();
+        $task_name = $key ? $key : $this->get_current_task();
         $messages = $this->options->get( 'archive_status_messages' );
         Util::debug_log( 'Status message: [' . $task_name . '] ' . $message );
 
@@ -301,7 +307,8 @@ class Archive_Creation_Job extends \WP_Background_Process {
     protected function exception_occurred( $exception ) : string {
         Util::debug_log( 'An exception occurred: ' . $exception->getMessage() );
         Util::debug_log( $exception );
-        $message = sprintf( __( 'An exception occurred: %s', 'simplerstatic' ), $exception->getMessage() );
+        $message =
+            sprintf( 'An exception occurred: %s', $exception->getMessage() );
         $this->save_status_message( $message, 'error' );
         return 'cancel';
     }
@@ -342,7 +349,7 @@ class Archive_Creation_Job extends \WP_Background_Process {
             $error_message .= ' in <b>' . $error['file'] . '</b>';
             $error_message .= ' on line <b>' . $error['line'] . '</b>';
 
-            $message = sprintf( __( 'Error: %s', 'simplerstatic' ), $error_message );
+            $message = sprintf( 'Error: %s', $error_message );
             Util::debug_log( $message );
             $this->save_status_message( $message, 'error' );
         }

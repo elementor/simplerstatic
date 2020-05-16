@@ -108,7 +108,7 @@ class Plugin {
             // Filters
             add_filter( 'http_request_args', [ self::$instance, 'wpbp_http_request_args' ], 10, 2 );
             add_filter(
-                'simplerstatic.archive_creation_job.task_list',
+                'simplerstatic_archive_creation_job_task_list',
                 [ self::$instance, 'filter_task_list' ],
                 10,
                 2
