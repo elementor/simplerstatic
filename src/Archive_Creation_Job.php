@@ -1,4 +1,5 @@
 <?php
+
 namespace SimplerStatic;
 
 // Exit if accessed directly

@@ -32,7 +32,7 @@ class Query {
     protected $offset = null;
 
     /**
-     * @var array
+     * @var mixed[]
      */
     protected $where = [];
 
@@ -51,7 +51,7 @@ class Query {
     /**
      * Execute the query and return an array of models
      *
-     * @return array
+     * @return mixed[]
      */
     public function find() {
         global $wpdb;

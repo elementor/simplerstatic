@@ -17,7 +17,8 @@
     },
     "require": {
         "php": ">=7.3",
-        "simplehtmldom/simplehtmldom": "^2.0-RC2"
+        "simplehtmldom/simplehtmldom": "^2.0-RC2",
+        "a5hleyrich/wp-background-processing": "*"
     },
     "require-dev": {
         "phpstan/phpstan": "*",

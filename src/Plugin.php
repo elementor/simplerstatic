@@ -131,7 +131,6 @@ class Plugin {
     private function includes() {
         $path = plugin_dir_path( dirname( __FILE__ ) );
         require_once $path . 'includes/libraries/phpuri.php';
-        require_once $path . 'includes/libraries/wp-background-processing/wp-background-processing.php';
     }
 
     /**
