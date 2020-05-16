@@ -17,4 +17,5 @@ parameters:
         - '#^Call to an undefined method SimplerStatic\\Query::save\(\)#'
         - '#^Call to an undefined method SimplerStatic\\Query::set_status_message\(\)#'
         - '#^Access to an undefined property SimplerStatic\\Query::\$found_on_id#'
+        - '#^Call to an undefined method SimplerStatic\\Query::exists\(\)#'
     excludes_analyse:

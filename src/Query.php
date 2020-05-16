@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Query {
     /**
-     * @var SimplerStatic\Model
+     * @var Model
      */
     protected $model;
 
@@ -42,7 +42,7 @@ class Query {
     protected $order = null;
 
     /**
-     * @param SimplerStatic\Model $model
+     * @param Model $model
      */
     public function __construct( $model ) {
         $this->model = $model;
@@ -65,7 +65,7 @@ class Query {
         );
 
         if ( $rows === null ) {
-            return null;
+            return [];
         } else {
             $records = [];
 
@@ -80,7 +80,7 @@ class Query {
     /**
      * First and return the first record matching the conditions
      *
-     * @return static|null An instance of the class, or null
+     * @return mixed An instance of the class, or null
      */
     public function first() {
         global $wpdb;
@@ -109,7 +109,7 @@ class Query {
      *
      * @param  string $column_name The name of the column to search on
      * @param  string $value       The value that the column should contain
-     * @return static|null         An instance of the class, or null
+     * @return mixed         An instance of the class, or null
      */
     public function find_by( $column_name, $value ) {
         global $wpdb;
@@ -139,7 +139,7 @@ class Query {
      *
      * @param  string $column_name The name of the column to search on
      * @param  string $value       The value that the column should contain
-     * @return static              An instance of the class (might not exist in db yet)
+     * @return mixed              An instance of the class (might not exist in db yet)
      */
     public function find_or_initialize_by( $column_name, $value ) {
         global $wpdb;
@@ -150,6 +150,7 @@ class Query {
         if ( ! $obj ) {
             $obj = $model::initialize( [ $column_name => $value ] );
         }
+
         return $obj;
     }
 
@@ -185,7 +186,7 @@ class Query {
      */
     public function update_all( $arg ) {
         if ( func_num_args() > 1 ) {
-            throw new \Exception( 'Too many arguments passed' );
+            throw new SimplerStaticException( 'Too many arguments passed' );
         }
 
         global $wpdb;
@@ -242,7 +243,7 @@ class Query {
      */
     public function offset( $offset ) {
         if ( $this->limit === null ) {
-            throw new \Exception( 'Cannot offset without limit' );
+            throw new SimplerStaticException( 'Cannot offset without limit' );
         }
 
         $this->offset = $offset;
@@ -292,7 +293,9 @@ class Query {
                 // pass the string as-is to our "where" array
                 $this->where[] = $arg;
             } else {
-                throw new \Exception( 'One argument provided and it was not a string or array' );
+                throw new SimplerStaticException(
+                    'One argument provided and it was not a string or array'
+                );
             }
         } elseif ( func_num_args() > 1 ) {
             $where_values = func_get_args();
@@ -301,20 +304,27 @@ class Query {
             if ( is_string( $condition ) ) {
                 // check that the number of args and ?'s matches
                 if ( substr_count( $condition, '?' ) != sizeof( $where_values ) ) {
-                    throw new \Exception( "Number of arguments does not match number of placeholders (?'s)" );
+                    throw new SimplerStaticException( "Number of arguments does not match number of placeholders (?'s)" );
                 } else {
                     // create a condition to add to the "where" array
                     foreach ( $where_values as $value ) {
-                        $condition = preg_replace( '/\?/', self::escape_and_quote( $value ), $condition, 1 );
+                        $condition = preg_replace(
+                            '/\?/',
+                            self::escape_and_quote( $value ),
+                            (string) $condition,
+                            1
+                        );
                     }
 
                     $this->where[] = $condition;
                 }
             } else {
-                throw new \Exception( 'Multiple arguments provided but first arg was not a string' );
+                throw new SimplerStaticException(
+                    'Multiple arguments provided but first arg was not a string'
+                );
             }
         } else {
-            throw new \Exception( 'No arguments provided' );
+            throw new SimplerStaticException( 'No arguments provided' );
         }
 
         return $this;
@@ -353,9 +363,8 @@ class Query {
      * compose_update_query( array( 'widget_id' => 2, 'type' => 'sprocket' ) )
      *
      * @param  mixed $arg See description
-     * @return The SQL query for updating records
      */
-    private function compose_update_query( $arg ) {
+    private function compose_update_query( $arg ) : string{
         $values = ' SET ';
 
         if ( is_array( $arg ) ) {
@@ -368,7 +377,7 @@ class Query {
             // pass the string as-is to our "where" array
             $values .= $arg . ' ';
         } else {
-            throw new \Exception( 'Argument provided was not a string or array' );
+            throw new SimplerStaticException( 'Argument provided was not a string or array' );
         }
 
         return $this->compose_query( 'UPDATE ', $values );
@@ -376,11 +385,10 @@ class Query {
 
     /**
      * Generate a SQL query
-     * $param  string $statement SELECT *, UPDATE, etc.
      *
-     * @return string
+     * @param  string $statement SELECT *, UPDATE, etc.
      */
-    private function compose_query( $statement, $values = '' ) {
+    private function compose_query( $statement, string $values = '' ) : string {
         $model = $this->model;
         $table  = ' ' . $model::table_name();
         $where  = '';
@@ -426,7 +434,10 @@ class Query {
         return $where_sql;
     }
 
-    private static function escape_and_quote( $value ) {
+    /**
+     * @param  mixed  $value
+     */
+    private static function escape_and_quote( $value ) : string {
         if ( $value === null ) {
             return 'NULL';
         } else {
@@ -434,8 +445,6 @@ class Query {
 
             if ( is_string( $value ) ) {
                 return "'{$value}'";
-            } else {
-                return $value;
             }
         }
     }
