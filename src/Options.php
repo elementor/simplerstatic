@@ -13,14 +13,14 @@ class Options {
     /**
      * Singleton instance
      *
-     * @var Options
+     * @var Options|null
      */
     protected static $instance = null;
 
     /**
      * Options array
      *
-     * @var array
+     * @var mixed[] options
      */
     protected $options = [];
 
@@ -69,7 +69,7 @@ class Options {
     /**
      * Return a fresh instance of Options
      *
-     * @return SimplerStatic
+     * @return Options
      */
     public static function reinstance() {
         self::$instance = null;
@@ -116,7 +116,7 @@ class Options {
     /**
      * Returns all options as an array
      *
-     * @return array
+     * @return mixed[] options
      */
     public function get_as_array() {
         return $this->options;

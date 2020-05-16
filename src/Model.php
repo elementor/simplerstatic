@@ -27,7 +27,7 @@ class Model {
      * In the format of 'col_name' => 'col_definition', e.g.
      *     'id' => 'BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY'
      *
-     * @var array
+     * @var mixed[]
      */
     protected static $columns = [];
 
@@ -37,7 +37,7 @@ class Model {
      * In the format of 'index_name' => 'index_def', e.g.
      *     'url' => 'url'
      *
-     * @var array
+     * @var mixed[]
      */
     protected static $indexes = [];
 
@@ -53,14 +53,14 @@ class Model {
     /**
      * The stored data for this instance of the model.
      *
-     * @var array
+     * @var mixed[]
      */
     private $data = [];
 
     /**
      * Track if this record has had changed made to it
      *
-     * @var boolean
+     * @var mixed[]
      */
     private $dirty_fields = [];
 
@@ -74,7 +74,7 @@ class Model {
      */
     public function __get( $field_name ) {
         if ( ! array_key_exists( $field_name, $this->data ) ) {
-            throw new \Exception( 'Undefined variable for ' . get_called_class() );
+            throw new SimplerStaticException( 'Undefined variable for ' . get_called_class() );
         } else {
             return $this->data[ $field_name ];
         }
@@ -92,7 +92,7 @@ class Model {
      */
     public function __set( $field_name, $field_value ) {
         if ( ! array_key_exists( $field_name, static::$columns ) ) {
-            throw new \Exception( 'Column doesn\'t exist for ' . get_called_class() );
+            throw new SimplerStaticException( 'Column doesn\'t exist for ' . get_called_class() );
         } else {
             if ( ! array_key_exists( $field_name, $this->data ) || $this->data[ $field_name ] !== $field_value ) {
                 array_push( $this->dirty_fields, $field_name );
@@ -121,17 +121,21 @@ class Model {
      * @return Query
      */
     public static function query() {
+        // @phpstan-ignore-next-line
         $query = new Query( get_called_class() );
+
         return $query;
     }
 
     /**
      * Initialize an instance of the class and set its attributes
      *
-     * @param  array $attributes Array of attributes to set for the class
+     * @param  mixed[] $attributes Array of attributes to set for the class
      * @return static            An instance of the class
      */
     public static function initialize( $attributes ) {
+        // TODO: look at safer option
+        // @phpstan-ignore-next-line
         $obj = new static();
         foreach ( array_keys( static::$columns ) as $column ) {
             $obj->data[ $column ] = null;
@@ -143,7 +147,7 @@ class Model {
     /**
      * Set the attributes of the model
      *
-     * @param  array $attributes Array of attributes to set
+     * @param  mixed[] $attributes Array of attributes to set
      * @return static            An instance of the class
      */
     public function attributes( $attributes ) {
@@ -159,7 +163,6 @@ class Model {
      * If the model is new a record gets created in the database, otherwise the
      * existing record gets updated.
      *
-     * @param  array $attributes Array of attributes to set
      * @return boolean           An instance of the class
      */
     public function save() {
@@ -169,9 +172,8 @@ class Model {
         if ( $this->created_at === null ) {
             $this->created_at = Util::formatted_datetime();
         }
-        $this->updated_at = Util::formatted_datetime();
 
-        
+        $this->updated_at = Util::formatted_datetime();
 
         // If we haven't changed anything, don't bother updating the DB, and
         // return that saving was successful.

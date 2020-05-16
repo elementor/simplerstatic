@@ -235,10 +235,8 @@ class Plugin {
 
     /**
      * Render json+html for response to static archive creation
-     *
-     * @return void
      */
-    function send_json_response_for_static_archive( $action ) {
+    function send_json_response_for_static_archive( string $action ) : void {
         $done = $this->archive_creation_job->is_job_done();
         $current_task = $this->archive_creation_job->get_current_task();
 
@@ -401,6 +399,7 @@ class Plugin {
         $urls_to_exclude = [];
         $excludables = $this->fetch_post_array_value( 'excludable' );
 
+        // @phpstan-ignore-next-line
         foreach ( $excludables as $excludable ) {
             $url = trim( $excludable['url'] );
             // excluding the template row (always has a blank url) and any rows
@@ -558,9 +557,12 @@ class Plugin {
 
     /**
      * Set HTTP Basic Auth for wp-background-processing
+     * @param mixed[] $r request options
+     * @return mixed[] request options
      */
-    function wpbp_http_request_args( $r, $url ) {
+    function wpbp_http_request_args( array $r, string $url ) : array {
         $digest = self::$instance->options->get( 'http_basic_auth_digest' );
+
         if ( $digest ) {
             $r['headers']['Authorization'] = 'Basic ' . $digest;
         }
