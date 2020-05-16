@@ -67,7 +67,7 @@ class Page extends Model {
 			ARRAY_A
 		);
 
-		$http_codes = array( '1' => 0, '2' => 0, '3' => 0, '4' => 0, '5' => 0 );
+		$http_codes = array( '1' => 0, '2' => 0, '3' => 0, '4' => 0, '5' => 0, '6' => 0);
 		foreach ( $rows as $row ) {
 			$http_codes[ $row['status'] ] = $row['count'];
 		}

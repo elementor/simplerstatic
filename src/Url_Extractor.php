@@ -6,7 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use simplehtmldom\HtmlWeb;
+use simplehtmldom\HtmlDocument;
 
 /**
  * Simpler Static URL extractor class
@@ -234,6 +234,7 @@ class Url_Extractor {
 				$extracted_urls = array();
 				$attribute_value = $tag->$attribute_name;
 
+                Util::debug_log( "attribute value $attribute_value" );
 				// srcset is a fair bit different from most html
 				// attributes, so it gets it's own processsing
 				if ( $attribute_name === 'srcset' ) {
@@ -265,18 +266,21 @@ class Url_Extractor {
 	private function extract_and_replace_urls_in_html() {
 		$html_string = $this->get_body();
 
-		$dom = HtmlWeb::load(
+        $html_web = new HtmlDocument();
+
+		$dom = $html_web->load(
 			$html_string,
 			$lowercase = true,
 			$forceTagsClosed = true,
-			$target_charset = DEFAULT_TARGET_CHARSET,
+			$target_charset = 'UTF-8',
 			$stripRN = false,
-			$defaultBRText = DEFAULT_BR_TEXT,
-			$defaultSpanText = DEFAULT_SPAN_TEXT
+			$defaultBRText = '',
+			$defaultSpanText = ''
 		);
 
 		// return the original html string if dom is blank or boolean (unparseable)
-		if ( $dom == '' || is_bool( $dom ) ) {
+        // quick test for processable content
+		if ( ! $dom ) {
 			return $html_string;
 		} else {
 			// handle tags with attributes

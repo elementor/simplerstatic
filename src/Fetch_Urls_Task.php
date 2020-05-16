@@ -43,10 +43,10 @@ class Fetch_Urls_Task extends Task {
 			if ( $excludable !== false ) {
 				$save_file = $excludable['do_not_save'] !== '1';
 				$follow_urls = $excludable['do_not_follow'] !== '1';
-				Util::debug_log(
-                    "Excludable found: URL: " . $excludable['url'] . ' DNS: ' .
-                    $excludable['do_not_save'] . ' DNF: ' .$excludable['do_not_follow']
-                );
+				// Util::debug_log(
+                //     "Excludable found: URL: " . $excludable['url'] . ' DNS: ' .
+                //     $excludable['do_not_save'] . ' DNF: ' .$excludable['do_not_follow']
+                // );
 			} else {
 				$save_file = true;
 				$follow_urls = true;
@@ -55,7 +55,7 @@ class Fetch_Urls_Task extends Task {
 			// If we're not saving a copy of the page or following URLs on that
 			// page, then we don't need to bother fetching it.
 			if ( $save_file === false && $follow_urls === false ) {
-				Util::debug_log( "Skipping URL because it is no-save and no-follow" );
+				// Util::debug_log( "Skipping URL because it is no-save and no-follow" );
 				$static_page->last_checked_at = Util::formatted_datetime();
 				$static_page->set_status_message( "Do not save or follow" );
 				$static_page->set_http_status_code( 666 );
@@ -99,7 +99,7 @@ class Fetch_Urls_Task extends Task {
 	 */
 	protected function handle_200_response( $static_page, $save_file, $follow_urls ) {
 		if ( $save_file || $follow_urls ) {
-			Util::debug_log( "Extracting URLs and replacing URLs in the static file" );
+			// Util::debug_log( "Extracting URLs and replacing URLs in the static file" );
 			// Fetch all URLs from the page and add them to the queue...
 			$extractor = new Url_Extractor( $static_page );
 			$urls = $extractor->extract_and_update_urls();
@@ -117,7 +117,7 @@ class Fetch_Urls_Task extends Task {
 
 		$file = $this->archive_dir . $static_page->file_path;
 		if ( $save_file ) {
-			Util::debug_log( "We're saving this URL; keeping the static file" );
+			// Util::debug_log( "We're saving this URL; keeping the static file" );
 			$sha1 = sha1_file( $file );
 
 			// if the content is identical, move on to the next file
@@ -127,7 +127,7 @@ class Fetch_Urls_Task extends Task {
 				$static_page->set_content_hash( $sha1 );
 			}
 		} else {
-			Util::debug_log( "Not saving this URL; deleting the static file" );
+			// Util::debug_log( "Not saving this URL; deleting the static file" );
 			unlink( $file ); // delete saved file
 			$static_page->file_path = null;
 			$static_page->set_status_message( __( "Do not save", 'simplerstatic' ) );
