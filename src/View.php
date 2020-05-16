@@ -28,7 +28,7 @@ class View {
     /**
      * View variables array
      *
-     * @var array
+     * @var mixed[]
      */
     protected $variables = [];
 
@@ -47,9 +47,14 @@ class View {
     protected $template = null;
 
     /**
+     * @var string
+     */
+    protected $layout;
+
+    /**
      * Flashes are quick status messages displayed at the top of the page
      *
-     * @var array
+     * @var mixed[]
      */
     protected $flashes = [];
 
@@ -68,11 +73,8 @@ class View {
 
     /**
      * Sets a layout that will be used later in render() method
-     *
-     * @param string $template The template filename, without extension
-     * @return SimplerStatic\View
      */
-    public function set_layout( $layout ) {
+    public function set_layout( string $layout ) : View {
         $this->layout = trailingslashit( $this->path ) . 'layouts/' . $layout . self::EXTENSION;
 
         return $this;
@@ -82,7 +84,7 @@ class View {
      * Sets a template that will be used later in render() method
      *
      * @param string $template The template filename, without extension
-     * @return SimplerStatic\View
+     * @return View
      */
     public function set_template( $template ) {
         $this->template = trailingslashit( $this->path ) . $template . self::EXTENSION;
@@ -106,7 +108,7 @@ class View {
      *
      * @param string $name The variable name
      * @param mixed  $value The variable value
-     * @return SimplerStatic\View
+     * @return View
      */
     public function __set( $name, $value ) {
         $this->variables[ $name ] = $value;
@@ -118,7 +120,7 @@ class View {
      *
      * @param string $name The variable name
      * @param mixed $value The variable value
-     * @return SimplerStatic\View
+     * @return View
      */
     public function assign( $name, $value ) {
         return $this->__set( $name, $value );
@@ -160,7 +162,10 @@ class View {
         // layouts are optional. if no layout provided, use the template by itself.
         if ( $this->layout ) {
             if ( ! is_readable( $this->layout ) ) {
-                return new \WP_Error( 'invalid_layout', sprintf( __( "Can't find view layout: %s", 'simplerstatic' ), $this->layout ) );
+                return new \WP_Error(
+                    'invalid_layout',
+                    sprintf( "Can't find view layout: %s", $this->layout )
+                );
             } else {
                 // the layout should include the template
                 return $this->layout;
@@ -174,7 +179,7 @@ class View {
     /**
      * Renders the view script.
      *
-     * @return SimplerStatic\View|\WP_Error
+     * @return View|\WP_Error
      */
     public function render() {
 
@@ -192,7 +197,7 @@ class View {
     /**
      * Returns the view as a string.
      *
-     * @return string|\WP_Error
+     * @return string|\WP_Error|bool
      */
     public function render_to_string() {
 

@@ -97,7 +97,7 @@ class Url_Extractor {
     /**
      * An instance of the options structure containing all options for this plugin
      *
-     * @var SimplerStatic\Options
+     * @var Options
      */
     protected $options = null;
 

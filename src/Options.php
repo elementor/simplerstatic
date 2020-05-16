@@ -13,7 +13,7 @@ class Options {
     /**
      * Singleton instance
      *
-     * @var SimplerStatic\Options
+     * @var Options
      */
     protected static $instance = null;
 
@@ -46,7 +46,7 @@ class Options {
     public function __wakeup() {}
 
     /**
-     * Return an instance of SimplerStatic\Options
+     * Return an instance of Options
      *
      * @return SimplerStatic
      */
@@ -66,7 +66,7 @@ class Options {
     }
 
     /**
-     * Return a fresh instance of SimplerStatic\Options
+     * Return a fresh instance of Options
      *
      * @return SimplerStatic
      */
@@ -80,7 +80,7 @@ class Options {
      *
      * @param string $name The option name
      * @param mixed $value The option value
-     * @return SimplerStatic\Options
+     * @return Options
      */
     public function set( $name, $value ) {
         $this->options[ $name ] = $value;

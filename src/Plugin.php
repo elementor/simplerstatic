@@ -34,21 +34,21 @@ class Plugin {
     /**
      * An instance of the options structure containing all options for this plugin
      *
-     * @var SimplerStatic\Options
+     * @var Options
      */
     protected $options = null;
 
     /**
      * View object
      *
-     * @var SimplerStatic\View
+     * @var View
      */
     protected $view = null;
 
     /**
      * Archive creation process
      *
-     * @var SimplerStatic\Archive_Creation_Job
+     * @var Archive_Creation_Job
      */
     protected $archive_creation_job = null;
 

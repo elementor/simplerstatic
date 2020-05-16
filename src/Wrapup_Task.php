@@ -8,7 +8,7 @@ class Wrapup_Task extends Task {
      */
     protected static $task_name = 'wrapup';
 
-    public function perform() {
+    public function perform() : bool {
         if ( $this->options->get( 'delete_temp_files' ) === '1' ) {
             Util::debug_log( 'Deleting temporary files' );
             $this->save_status_message( __( 'Wrapping up', 'simplerstatic' ) );

@@ -16,7 +16,7 @@ class Upgrade_Handler {
     /**
      * An instance of the options structure containing all options for this plugin
      *
-     * @var SimplerStatic\Options
+     * @var Options
      */
     protected static $options = null;
 
@@ -89,7 +89,7 @@ class Upgrade_Handler {
                 update_option( 'simplerstatic', $old_ss_options );
                 delete_option( 'simplerstatic' );
 
-                // update SimplerStatic\Options again to pull in updated data
+                // update Options again to pull in updated data
                 self::$options = new Options();
             }
         }
