@@ -90,7 +90,7 @@ class Url_Extractor {
     /**
      * The static page to extract URLs from
      *
-     * @var SimplerStatic\Page
+     * @var Page
      */
     protected $static_page;
 
@@ -111,7 +111,7 @@ class Url_Extractor {
     /**
      * Constructor
      *
-     * @param string  $static_page SimplerStatic\Page to extract URLs from
+     * @param string  $static_page Page to extract URLs from
      */
     public function __construct( $static_page ) {
         $this->static_page = $static_page;
@@ -140,7 +140,7 @@ class Url_Extractor {
     /**
      * Save a string back to our file (e.g. after having updated URLs)
      *
-     * @param  string    $static_page SimplerStatic\Page to extract URLs from
+     * @param  string    $static_page Page to extract URLs from
      * @return int|false
      */
     public function save_body( $content ) {
@@ -225,9 +225,9 @@ class Url_Extractor {
      * The tag is passed by reference, so it's updated directly and nothing is
      * returned from this function.
      *
-     * @param  simple_html_dom_node $tag        SHDP dom node
-     * @param  string               $tag_name   name of the tag
-     * @param  array                $attributes array of attribute notes
+     * @param  mixed $tag dom node
+     * @param  string $tag_name   name of the tag
+     * @param  array $attributes array of attribute notes
      * @return void
      */
     private function extract_urls_and_update_tag( &$tag, $tag_name, $attributes ) {
@@ -277,13 +277,7 @@ class Url_Extractor {
         $html_web = new HtmlDocument();
 
         $dom = $html_web->load(
-            $html_string,
-            $lowercase = true,
-            $forceTagsClosed = true,
-            $target_charset = 'UTF-8',
-            $stripRN = false,
-            $defaultBRText = '',
-            $defaultSpanText = ''
+            $html_string
         );
 
         // return the original html string if dom is blank or boolean (unparseable)
@@ -317,7 +311,7 @@ class Url_Extractor {
      * Extract URLs from the srcset attribute
      *
      * @param  string $srcset Value of the srcset attribute
-     * @return array  Array of extracted URLs
+     * @return mixed[]  Array of extracted URLs
      */
     private function extract_urls_from_srcset( $srcset ) {
         $extracted_urls = [];
@@ -325,7 +319,7 @@ class Url_Extractor {
         foreach ( explode( ',', $srcset ) as $url_and_descriptor ) {
             // remove the (optional) descriptor
             // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img#attr-srcset
-            $extracted_urls[] = trim( preg_replace( '/[\d\.]+[xw]\s*$/', '', $url_and_descriptor ) );
+            $extracted_urls[] = trim( (string) preg_replace( '/[\d\.]+[xw]\s*$/', '', $url_and_descriptor ) );
         }
 
         return $extracted_urls;
@@ -352,10 +346,10 @@ class Url_Extractor {
         ]; // @import w/o url()
 
         foreach ( $patterns as $pattern ) {
-            $text = preg_replace_callback( $pattern, [ $this, 'css_matches' ], $text );
+            $text = preg_replace_callback( $pattern, [ $this, 'css_matches' ], (string) $text );
         }
 
-        return $text;
+        return (string) $text;
     }
 
     /**
@@ -364,7 +358,7 @@ class Url_Extractor {
      * Takes the match, extracts the URL, adds it to the list of URLs, converts
      * the URL to a destination URL.
      *
-     * @param  array $matches Array of preg_replace matches
+     * @param  mixed[] $matches Array of preg_replace matches
      * @return string An updated string for the text that was originally matched
      */
     private function css_matches( $matches ) {
@@ -391,7 +385,7 @@ class Url_Extractor {
         $pattern = "/https?:\/\/[^\s\"'<]+/";
         $text = preg_replace_callback( $pattern, [ $this, 'xml_matches' ], $xml_string );
 
-        return $text;
+        return (string) $text;
     }
 
     /**
@@ -400,7 +394,7 @@ class Url_Extractor {
      * Takes the match, adds it to the list of URLs, converts the URL to a
      * destination URL.
      *
-     * @param  array $matches Array of regex matches found in the XML doc
+     * @param  mixed[] $matches Array of regex matches found in the XML doc
      * @return string         The extracted, converted URL
      */
     private function xml_matches( $matches ) {
@@ -408,9 +402,11 @@ class Url_Extractor {
 
         if ( isset( $extracted_url ) && $extracted_url !== '' ) {
             $updated_extracted_url = $this->add_to_extracted_urls( $extracted_url );
+
+            return $updated_extracted_url;
         }
 
-        return $updated_extracted_url;
+        return $extracted_url;
     }
 
     /**
@@ -425,10 +421,10 @@ class Url_Extractor {
      * type is relative/offline, the URL is converted to that format. Then the
      * URL is returned.
      *
-     * @return string The URL that should be added to the list of extracted URLs
+     * @param string $extracted_url The URL that should be added to the list of extracted URLs
      * @return string The URL, converted to an absolute/relative/offline URL
      */
-    private function add_to_extracted_urls( $extracted_url ) {
+    private function add_to_extracted_urls( string $extracted_url ) : string {
         $url = Util::relative_to_absolute_url( $extracted_url, $this->static_page->url );
 
         if ( $url && Util::is_local_url( $url ) ) {
@@ -438,7 +434,7 @@ class Url_Extractor {
             $url = $this->convert_url( $url );
         }
 
-        return $url;
+        return (string) $url;
     }
 
     /**
@@ -468,7 +464,7 @@ class Url_Extractor {
     private function convert_absolute_url( $url ) {
         $destination_url = $this->options->get_destination_url();
         $url = Util::strip_protocol_from_url( $url );
-        $url = str_replace( Util::origin_host(), $destination_url, $url );
+        $url = str_replace( Util::origin_host(), $destination_url, (string) $url );
 
         return $url;
     }
@@ -514,13 +510,13 @@ class Url_Extractor {
         if ( $path_info['extension'] === '' ) {
             // If there's no extension, we need to add a /index.html,
             // and do so before any params or fragments.
-            $clean_path = Util::remove_params_and_fragment( $path );
-            $fragment = substr( $path, strlen( $clean_path ) );
+            $clean_path = (string) Util::remove_params_and_fragment( (string) $path );
+            $fragment = substr( (string) $path, strlen( $clean_path ) );
 
-            $path = trailingslashit( $clean_path );
+            $path = trailingslashit( (string) $clean_path );
             $path .= 'index.html' . $fragment;
         }
 
-        return $path;
+        return (string) $path;
     }
 }
