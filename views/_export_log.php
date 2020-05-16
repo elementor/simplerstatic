@@ -24,12 +24,12 @@ if ( is_array( $this->static_pages ) && count( $this->static_pages ) ) : ?>
 
 		<?php foreach ( $this->static_pages as $static_page ) : ?>
             <!-- clear skipped URLs from export log -->
-            <?php if ( $static_page->status_message !== 'Additional Dir; Do not save or follow' ) : ?>
+            <?php // if ( $static_page->status_message !== 'Additional Dir; Do not save or follow' ) : ?>
 
                 <tr>
                     <?php $processable = in_array( $static_page->http_status_code, Page::$processable_status_codes ); ?>
                     <td class='status-code <?php if ( ! $processable ) { echo 'unprocessable'; } ?>'>
-                        <?php echo $static_page->http_status_code; ?>
+                        <?php echo $static_page->http_status_code === '666' ? 'skip' : $static_page->http_status_code ; ?>
                     </td>
                     <td class='url'><a href='<?php echo $static_page->url; ?>'><?php echo $static_page->url; ?></a></td>
                     <td class='status-message'>
@@ -53,7 +53,7 @@ if ( is_array( $this->static_pages ) && count( $this->static_pages ) ) : ?>
                     </td>
                     <?php endif; ?>
                 </tr>
-                <?php endif; ?>
+                <?php // endif; ?>
 		<?php endforeach; ?>
 		</tbody>
 	</table>

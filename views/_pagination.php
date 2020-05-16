@@ -1,10 +1,13 @@
 <div class='alignleft'>
-	<div class='http-status'><?php _e( '1xx Informational:', 'simplerstatic' ); ?> <b><?php echo $this->http_status_codes['1']; ?></b> |
+	<div class='http-status'>
+        HTTP status codes:
+        1xx Informational: <b><?php echo $this->http_status_codes['1']; ?></b> |
 		2xx Success: <b><?php echo $this->http_status_codes['2']; ?></b> |
 		3xx Redirection: <b><?php echo $this->http_status_codes['3']; ?></b> |
 		4xx Client Error: <b><?php echo $this->http_status_codes['4']; ?></b> |
 		5xx Server Error: <b><?php echo $this->http_status_codes['5']; ?></b> |
-		<a href='https://en.wikipedia.org/wiki/List_of_HTTP_status_codes'>More info on HTTP status codes</a></div>
+		Skipped: <b><?php echo $this->http_status_codes['6']; ?></b>
+    </div>
 </div>
 
 <div class='tablenav-pages'>
