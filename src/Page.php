@@ -10,6 +10,30 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Simpler Static Page class, for tracking the status of pages / static files
  */
 class Page extends Model {
+    /**
+     * @var string
+     */
+    public $url;
+    /**
+     * @var string
+     */
+    public $last_checked_at;
+    /**
+     * @var int
+     */
+    public $http_status_code;
+    /**
+     * @var string
+     */
+    public $content_type;
+    /**
+     * @var string
+     */
+    public $redirect_url;
+    /**
+     * @var string
+     */
+    public $file_path;
 
     /** @const */
     public static $processable_status_codes = [
