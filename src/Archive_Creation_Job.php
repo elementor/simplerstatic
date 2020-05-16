@@ -6,8 +6,6 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-require_once ABSPATH . 'wp-admin/includes/admin.php';
-
 /**
  * Simpler Static archive manager class
  */
