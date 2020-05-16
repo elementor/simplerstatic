@@ -54,7 +54,7 @@ class Setup_Task extends Task {
      *
      * @return void
      */
-    public static function add_origin_and_additional_urls_to_db( string  $additional_urls ) {
+    public static function add_origin_and_additional_urls_to_db( string $additional_urls ) {
         $origin_url = trailingslashit( Util::origin_url() );
         Util::debug_log( 'Adding origin URL to queue: ' . $origin_url );
         $static_page = Page::query()->find_or_initialize_by( 'url', $origin_url );

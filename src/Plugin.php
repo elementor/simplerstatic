@@ -562,6 +562,7 @@ class Plugin {
 
     /**
      * Set HTTP Basic Auth for wp-background-processing
+     *
      * @param mixed[] $r request options
      * @return mixed[] request options
      */

@@ -364,7 +364,7 @@ class Query {
      *
      * @param  mixed $arg See description
      */
-    private function compose_update_query( $arg ) : string{
+    private function compose_update_query( $arg ) : string {
         $values = ' SET ';
 
         if ( is_array( $arg ) ) {

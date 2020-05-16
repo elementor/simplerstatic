@@ -12,16 +12,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Page extends Model {
     // TODO: not able to set these props without issues
     // /**
-    //  * @var string
-    //  */
+    // * @var string
+    // */
     // private $url;
     // /**
-    //  * @var int
-    //  */
+    // * @var int
+    // */
     // private $http_status_code;
     /*
         Note: seems a conflict between the ORM.
-        for now, set to private vars and ignore warnings 
+        for now, set to private vars and ignore warnings
         when working with instance vars
     */
     /**

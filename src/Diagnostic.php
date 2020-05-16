@@ -337,7 +337,7 @@ class Diagnostic {
     public function has_curl() {
         $label = __( 'Checking for cURL support', 'simplerstatic' );
 
-        if ( function_exists('curl_version') ) {
+        if ( function_exists( 'curl_version' ) ) {
             $version = curl_version();
             $test = version_compare( $version['version'], self::$min_version['curl'], '>=' );
             $message = $version['version'];

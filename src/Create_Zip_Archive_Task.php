@@ -32,7 +32,7 @@ class Create_Zip_Archive_Task extends Task {
 
         $zip_filename = untrailingslashit( $archive_dir ) . '.zip';
         $zip_archive = new ZipArchive();
-        $zip_archive->open( $zip_filename, ZipArchive::CREATE);
+        $zip_archive->open( $zip_filename, ZipArchive::CREATE );
 
         Util::debug_log( 'Fetching list of files to include in zip' );
         $files = [];
