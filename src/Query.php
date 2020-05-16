@@ -321,6 +321,7 @@ class Query {
 		}
 
 		$statement = "SELECT {$select} FROM ";
+
 		return $this->compose_query( $statement );
 	}
 
