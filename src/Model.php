@@ -118,7 +118,7 @@ class Model {
     /**
      * Used for finding models matching certain criteria
      *
-     * @return SimplerStatic\Query
+     * @return Query
      */
     public static function query() {
         $query = new Query( get_called_class() );
@@ -170,6 +170,8 @@ class Model {
             $this->created_at = Util::formatted_datetime();
         }
         $this->updated_at = Util::formatted_datetime();
+
+        
 
         // If we haven't changed anything, don't bother updating the DB, and
         // return that saving was successful.

@@ -6,7 +6,9 @@
 		3xx Redirection: <b><?php echo $this->http_status_codes['3']; ?></b> |
 		4xx Client Error: <b><?php echo $this->http_status_codes['4']; ?></b> |
 		5xx Server Error: <b><?php echo $this->http_status_codes['5']; ?></b> |
-		Skipped: <b><?php echo $this->http_status_codes['6']; ?></b>
+		Skipped: <b><?php echo $this->http_status_codes['6']; ?></b> |
+		External: <b><?php echo $this->http_status_codes['7']; ?></b> |
+		Other errors: <b><?php echo $this->http_status_codes['8']; ?></b>
     </div>
 </div>
 

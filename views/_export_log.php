@@ -29,7 +29,7 @@ if ( is_array( $this->static_pages ) && count( $this->static_pages ) ) : ?>
                 <tr>
                     <?php $processable = in_array( $static_page->http_status_code, Page::$processable_status_codes ); ?>
                     <td class='status-code <?php if ( ! $processable ) { echo 'unprocessable'; } ?>'>
-                        <?php echo $static_page->http_status_code === '666' ? 'skip' : $static_page->http_status_code ; ?>
+                        <?php echo (int) $static_page->http_status_code === 666 ? 'skip' : $static_page->http_status_code; ?>
                     </td>
                     <td class='url'><a href='<?php echo $static_page->url; ?>'><?php echo $static_page->url; ?></a></td>
                     <td class='status-message'>

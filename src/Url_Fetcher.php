@@ -55,7 +55,7 @@ class Url_Fetcher {
     /**
      * Return an instance of Url_Fetcher
      *
-     * @return SimplerStatic
+     * @return Url_Fetcher
      */
     public static function instance() {
         if ( null === self::$instance ) {
@@ -75,12 +75,12 @@ class Url_Fetcher {
     public function fetch( Page $static_page ) {
         $url = $static_page->url;
 
-        $static_page->last_checked_at = Util::formatted_datetime();
+        $static_page->last_checked_at = (string) Util::formatted_datetime();
 
         // Don't process URLs that don't match the URL of this WordPress installation
         if ( ! Util::is_local_url( $url ) ) {
             Util::debug_log( 'Not fetching URL because it is not a local URL' );
-            $static_page->http_status_code = null;
+            $static_page->http_status_code = 777;
             $message = sprintf( __( 'An error occurred: %s', 'simplerstatic' ), __( 'Attempted to fetch a remote URL', 'simplerstatic' ) );
             $static_page->set_error_message( $message );
             $static_page->save();
@@ -98,13 +98,13 @@ class Url_Fetcher {
         if ( is_wp_error( $response ) ) {
             Util::debug_log( 'We encountered an error when fetching: ' . $response->get_error_message() );
             Util::debug_log( $response );
-            $static_page->http_status_code = null;
+            $static_page->http_status_code = 888;
             $message = sprintf( __( 'An error occurred: %s', 'simplerstatic' ), $response->get_error_message() );
             $static_page->set_error_message( $message );
             $static_page->save();
             return false;
         } else {
-            $static_page->http_status_code = $response['response']['code'];
+            $static_page->http_status_code = (int) $response['response']['code'];
             $static_page->content_type = $response['headers']['content-type'];
             $static_page->redirect_url = isset( $response['headers']['location'] ) ? $response['headers']['location'] : null;
 
@@ -143,10 +143,9 @@ class Url_Fetcher {
      * This will also create directories as needed so that a file could be
      * created at the returned file path.
      *
-     * @param Page $static_page
      * @return string|null                The relative file path of the file
      */
-    public function create_directories_for_static_page( $static_page ) {
+    public function create_directories_for_static_page( Page $static_page ) {
         $url_parts = parse_url( $static_page->url );
 
         if ( ! $url_parts ) {

@@ -10,19 +10,36 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Simpler Static Page class, for tracking the status of pages / static files
  */
 class Page extends Model {
+    // TODO: not able to set these props without issues
+    // /**
+    //  * @var string
+    //  */
+    // private $url;
+    // /**
+    //  * @var int
+    //  */
+    // private $http_status_code;
+    /*
+        Note: seems a conflict between the ORM.
+        for now, set to private vars and ignore warnings 
+        when working with instance vars
+    */
     /**
      * @var string
      */
-    public $url;
-    // this is not correct, breaks exporting
-    ////  /**
-    ////   * @var string
-    ////   */
-    ////  public $last_checked_at;
+    private $found_on_id;
     /**
-     * @var int
+     * @var string
      */
-    public $http_status_code;
+    private $content_hash;
+    /**
+     * @var string
+     */
+    private $last_checked_at;
+    /**
+     * @var string
+     */
+    private $last_modified_at;
     /**
      * @var string
      */
@@ -35,8 +52,18 @@ class Page extends Model {
      * @var string
      */
     public $file_path;
+    /**
+     * @var string
+     */
+    private $status_message;
+    /**
+     * @var string
+     */
+    private $error_message;
 
-    /** @const */
+    /**
+     * @var int[]
+     */
     public static $processable_status_codes = [
         200,
         301,
@@ -49,7 +76,9 @@ class Page extends Model {
     /** @const */
     protected static $table_name = 'pages';
 
-    /** @const */
+    /**
+     * @var mixed[]
+     */
     protected static $columns = [
         'id'                  => 'BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT',
         'found_on_id'         => 'BIGINT(20) UNSIGNED NULL',
@@ -68,7 +97,9 @@ class Page extends Model {
         'updated_at'          => "DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00'",
     ];
 
-    /** @const */
+    /**
+     * @var string[]
+     */
     protected static $indexes = [
         'PRIMARY KEY  (id)',
         'KEY url (url)',
@@ -83,7 +114,7 @@ class Page extends Model {
     /**
      * Get the number of pages for each group of status codes, e.g. 1xx, 2xx, 3xx
      *
-     * @return array Assoc. array of status code to number of pages, e.g. '2' => 183
+     * @return mixed[] Assoc. array of status code to number of pages, e.g. '2' => 183
      */
     public static function get_http_status_codes_summary() {
         global $wpdb;
@@ -105,7 +136,10 @@ class Page extends Model {
             '4' => 0,
             '5' => 0,
             '6' => 0,
+            '7' => 0,
+            '8' => 0,
         ];
+
         foreach ( $rows as $row ) {
             $http_codes[ $row['status'] ] = $row['count'];
         }
@@ -116,7 +150,7 @@ class Page extends Model {
     /**
      * Return the static page that this page belongs to (if any)
      *
-     * @return Page The parent Page
+     * @return Query|null The parent Page
      */
     public function parent_static_page() {
         return self::query()->find_by( 'id', $this->found_on_id );
@@ -125,8 +159,8 @@ class Page extends Model {
     /**
      * Check if the hash for the content matches the prior hash for the page
      *
-     * @param  string  $content The content of the page/file
-     * @return boolean          Is the hash a match?
+     * @param  string  $sha1 The content of the page/file
+     * @return bool          Is the hash a match?
      */
     public function is_content_identical( $sha1 ) {
         return $sha1 === $this->content_hash;
@@ -134,23 +168,19 @@ class Page extends Model {
 
     /**
      * Set the hash for the content and update the last_modified_at value
-     *
-     * @param string $content The content of the page/file
      */
-    public function set_content_hash( $sha1 ) {
+    public function set_content_hash( string $sha1 ) : void {
         $this->content_hash = $sha1;
-        $this->last_modified_at = Util::formatted_datetime();
+        $this->last_modified_at = (string) Util::formatted_datetime();
     }
 
     /**
-     * Set an error message
+     * Sets or appends an error message
      *
      * An error indicates that something bad happened when fetching the page, or
      * saving the page, or during some other activity related to the page.
-     *
-     * @param string $message The error message
      */
-    public function set_error_message( $message ) {
+    public function set_error_message( string $message ) : void {
         if ( $this->error_message ) {
             $this->error_message = $this->error_message . '; ' . $message;
         } else {
@@ -159,14 +189,12 @@ class Page extends Model {
     }
 
     /**
-     * Set a status message
+     * Sets or appends a status message
      *
      * A status message is used to indicate things that happened to the page
      * that weren't errors, such as not following links or not saving the page.
-     *
-     * @param string $message The status message
      */
-    public function set_status_message( $message ) {
+    public function set_status_message( string $message ) : void {
         if ( $this->status_message ) {
             $this->status_message = $this->status_message . '; ' . $message;
         } else {
@@ -174,11 +202,7 @@ class Page extends Model {
         }
     }
 
-    public function set_http_status_code( $code ) {
-        $this->http_status_code = $code;
-    }
-
-    public function is_type( $content_type ) {
+    public function is_type( string $content_type ) : bool {
         return stripos( $this->content_type, $content_type ) !== false;
     }
 }

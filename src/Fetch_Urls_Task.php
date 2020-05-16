@@ -24,6 +24,7 @@ class Fetch_Urls_Task extends Task {
      * @return boolean|WP_Error true if done, false if not done, WP_Error if error
      */
     public function perform() {
+        // TODO: set as configurable option for performance
         $batch_size = 10;
 
         $static_pages = Page::query()
@@ -59,7 +60,7 @@ class Fetch_Urls_Task extends Task {
                 // Util::debug_log( "Skipping URL because it is no-save and no-follow" );
                 $static_page->last_checked_at = Util::formatted_datetime();
                 $static_page->set_status_message( 'Do not save or follow' );
-                $static_page->set_http_status_code( 666 );
+                $static_page->http_status_code = 666;
                 $static_page->save();
                 continue;
             } else {
@@ -114,13 +115,13 @@ class Fetch_Urls_Task extends Task {
             }
         } else {
             Util::debug_log( 'Not following URLs from this page' );
-            $static_page->set_status_message( __( 'Do not follow', 'simplerstatic' ) );
+            $static_page->set_status_message( 'Do not follow' );
         }
 
         $file = $this->archive_dir . $static_page->file_path;
         if ( $save_file ) {
             // Util::debug_log( "We're saving this URL; keeping the static file" );
-            $sha1 = sha1_file( $file );
+            $sha1 = (string) sha1_file( $file );
 
             // if the content is identical, move on to the next file
             if ( $static_page->is_content_identical( $sha1 ) ) {
@@ -132,7 +133,7 @@ class Fetch_Urls_Task extends Task {
             // Util::debug_log( "Not saving this URL; deleting the static file" );
             unlink( $file ); // delete saved file
             $static_page->file_path = null;
-            $static_page->set_status_message( __( 'Do not save', 'simplerstatic' ) );
+            $static_page->set_status_message( 'Do not save' );
         }
 
         $static_page->save();
@@ -205,7 +206,7 @@ class Fetch_Urls_Task extends Task {
                         $static_page->file_path = $filename;
                     }
 
-                    $sha1 = sha1_file( $this->archive_dir . $filename );
+                    $sha1 = (string) sha1_file( $this->archive_dir . $filename );
 
                     // if the content is identical, move on to the next file
                     if ( $static_page->is_content_identical( $sha1 ) ) {
@@ -215,7 +216,7 @@ class Fetch_Urls_Task extends Task {
                     }
                 } else {
                     Util::debug_log( 'Not creating a redirect page' );
-                    $static_page->set_status_message( __( 'Do not save', 'simplerstatic' ) );
+                    $static_page->set_status_message( 'Do not save' );
                 }
 
                 $static_page->save();

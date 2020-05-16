@@ -366,7 +366,7 @@ class Util {
     /**
      * Get the current datetime formatted as a string for entry into MySQL
      *
-     * @return string MySQL formatted datetime
+     * @return string|bool MySQL formatted datetime
      */
     public static function formatted_datetime() {
         return date( 'Y-m-d H:i:s' );
