@@ -43,11 +43,13 @@ class Fetch_Urls_Task extends Task {
 			if ( $excludable !== false ) {
 				$save_file = $excludable['do_not_save'] !== '1';
 				$follow_urls = $excludable['do_not_follow'] !== '1';
-				Util::debug_log( "Excludable found: URL: " . $excludable['url'] . ' DNS: ' . $excludable['do_not_save'] . ' DNF: ' .$excludable['do_not_follow'] );
+				Util::debug_log(
+                    "Excludable found: URL: " . $excludable['url'] . ' DNS: ' .
+                    $excludable['do_not_save'] . ' DNF: ' .$excludable['do_not_follow']
+                );
 			} else {
 				$save_file = true;
 				$follow_urls = true;
-				Util::debug_log( "URL is not being excluded" );
 			}
 
 			// If we're not saving a copy of the page or following URLs on that
@@ -55,7 +57,8 @@ class Fetch_Urls_Task extends Task {
 			if ( $save_file === false && $follow_urls === false ) {
 				Util::debug_log( "Skipping URL because it is no-save and no-follow" );
 				$static_page->last_checked_at = Util::formatted_datetime();
-				$static_page->set_status_message( __( "Do not save or follow", 'simplerstatic' ) );
+				$static_page->set_status_message( "Do not save or follow" );
+				$static_page->set_http_status_code( 666 );
 				$static_page->save();
 				continue;
 			} else {

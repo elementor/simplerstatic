@@ -131,6 +131,10 @@ class Page extends Model {
 		}
 	}
 
+	public function set_http_status_code( $code ) {
+        $this->http_status_code = $code;
+	}
+
 	public function is_type( $content_type ) {
 		return stripos( $this->content_type, $content_type ) !== false;
 	}
