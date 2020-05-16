@@ -138,7 +138,9 @@ class Util {
 	 * @return string Filename for the debug log
 	 */
 	public static function get_debug_log_filename() {
-		return plugin_dir_path( dirname( __FILE__ ) ) . 'debug.txt';
+        $upload_path_and_url = wp_upload_dir();
+        $uploads_path = trailingslashit( $upload_path_and_url['basedir'] );
+		return $uploads_path . 'simplerstatic-debug.txt';
 	}
 
 	/**
