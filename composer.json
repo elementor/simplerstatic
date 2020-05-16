@@ -17,7 +17,7 @@
     },
     "require": {
         "php": ">=7.3",
-        "sunra/php-simple-html-dom-parser": "*"
+        "simplehtmldom/simplehtmldom": "^2.0-RC2"
     },
     "require-dev": {
         "phpstan/phpstan": "*",

@@ -107,6 +107,15 @@ class Archive_Creation_Job extends \WP_Background_Process {
 		// convert 'an_example' to 'An_Example_Task'
 		$class_name = 'SimplerStatic\\' . ucwords( $task_name ) . '_Task';
 
+        // quick patch for updated class names
+        if ( $class_name === 'SimplerStatic\Fetch_urls_Task' ) {
+            $class_name = 'SimplerStatic\Fetch_Urls_Task';
+        }
+
+        if ( $class_name === 'SimplerStatic\Create_zip_archive_Task' ) {
+            $class_name = 'SimplerStatic\Create_Zip_Archive_Task';
+        }
+
 		// this shouldn't ever happen, but just in case...
 		if ( ! class_exists( $class_name ) ) {
 			$this->save_status_message( "Class doesn't exist: " . $class_name, 'error' );
@@ -119,7 +128,7 @@ class Archive_Creation_Job extends \WP_Background_Process {
 		try {
 			Util::debug_log( "Performing task: " . $task_name );
 			$is_done = $task->perform();
-		} catch ( \Error $e ) {
+		} catch ( \WP_Error $e ) {
 			Util::debug_log( "Caught an error" );
 			return $this->error_occurred( $e );
 		} catch ( \Exception $e ) {
