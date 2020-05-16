@@ -8,7 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Plugin Name:       Simpler Static
  * Plugin URI:        http://simplerstatic.com
  * Description:       Simple WordPress static site generator
- * Version:           0.1
+ * Version:           0.2
  * Author:            Leon Stafford
  * Author URI:        https://ljs.dev
  * License:           The Unlicense

@@ -3,7 +3,7 @@ Contributors: leonstafford
 Tags: html, static website generator, static site, secure, fast
 Requires at least: 4.0
 Tested up to: 5.4.1
-Stable tag: 0.1
+Stable tag: 0.2
 License:           The Unlicense
 License URI:       https://unlicense.org
 
@@ -41,7 +41,11 @@ Please visit the [official homepage](https://simplerstatic.com).
 
 == Changelog ==
 
-= 0.0.1, May 16, 2020 =
+= 0.2, May 17, 2020 =
+
+* Code tidy-up, static analysis, minor tweaks
+
+= 0.1, May 16, 2020 =
 
 * First new build, based off fork of SimplyStatic
 
