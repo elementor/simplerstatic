@@ -100,13 +100,12 @@ class Plugin {
             add_action( 'admin_menu', [ self::$instance, 'add_plugin_admin_menu' ], 2 );
 
             // Handle AJAX requests
+            // TODO: rename actions to avoid collissions
             add_action( 'wp_ajax_static_archive_action', [ self::$instance, 'static_archive_action' ] );
             add_action( 'wp_ajax_render_export_log', [ self::$instance, 'render_export_log' ] );
             add_action( 'wp_ajax_render_activity_log', [ self::$instance, 'render_activity_log' ] );
 
             // Filters
-            add_filter( 'admin_footer_text', [ self::$instance, 'filter_admin_footer_text' ], 15 );
-            add_filter( 'update_footer', [ self::$instance, 'filter_update_footer' ], 15 );
             add_filter( 'http_request_args', [ self::$instance, 'wpbp_http_request_args' ], 10, 2 );
             add_filter( 'simplerstatic.archive_creation_job.task_list', [ self::$instance, 'filter_task_list' ], 10, 2 );
 
@@ -569,47 +568,11 @@ class Plugin {
     }
 
     /**
-     * Display support text in footer when on plugin page
-     *
-     * @return string
-     */
-    public function filter_admin_footer_text( $text ) {
-        if ( ! self::$instance->in_plugin() ) {
-            return $text;
-        }
-
-        $contact_support = '<a target="_blank" href="https://wordpress.org/support/plugin/simplerstatic#new-post">'
-            . __( 'Contact Support', 'simplerstatic' ) . '</a> | ';
-        $add_your_rating = str_replace(
-            '[stars]',
-            '<a target="_blank" href="https://wordpress.org/support/plugin/simplerstatic/reviews/#new-post" >&#9733;&#9733;&#9733;&#9733;&#9733;</a>',
-            __( 'Enjoying Simpler Static? Add your [stars] on wordpress.org.', 'simplerstatic' )
-        );
-
-        return $contact_support . $add_your_rating;
-    }
-
-    /**
-     * Display plugin version in footer when on plugin page
-     *
-     * @return string
-     */
-    public function filter_update_footer( $text ) {
-        if ( ! self::$instance->in_plugin() ) {
-            return $text;
-        }
-
-        $version_text = __( 'Simpler Static Version' ) . ': <a title="' . __( 'View what changed in this version', 'simplerstatic' ) . '" href="https://wordpress.org/plugins/simplerstatic/changelog/">' . self::VERSION . '</a>';
-
-        return $version_text;
-    }
-
-    /**
      * Return the task list for the Archive Creation Job to process
      *
-     * @param  array  $task_list       The list of tasks to process
+     * @param  string[]  $task_list       The list of tasks to process
      * @param  string $delivery_method The method of delivering static files
-     * @return array                   The list of tasks to process
+     * @return mixed[]                   The list of tasks to process
      */
     public function filter_task_list( $task_list, $delivery_method ) {
         array_push( $task_list, 'setup', 'fetch_urls' );
