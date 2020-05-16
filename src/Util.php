@@ -6,6 +6,9 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+$path = plugin_dir_path( dirname( __FILE__ ) );
+require_once $path . 'includes/libraries/phpuri.php';
+
 /**
  * Simpler Static utility class
  */
@@ -14,7 +17,7 @@ class Util {
     /**
      * Get the protocol used for the origin URL
      *
-     * @return string http or https
+     * @return string|null http or https
      */
     public static function origin_scheme() {
         $pattern = '/:\/\/.*/';
@@ -27,42 +30,34 @@ class Util {
      * @return string host (URL minus the protocol)
      */
     public static function origin_host() {
-        return untrailingslashit( self::strip_protocol_from_url( self::origin_url() ) );
+        return untrailingslashit( (string) self::strip_protocol_from_url( self::origin_url() ) );
     }
 
     /**
      * Wrapper around home_url(). Useful for swapping out the URL during debugging.
-     *
-     * @return string home URL
      */
-    public static function origin_url() {
+    public static function origin_url() : string {
         return home_url();
     }
 
     /**
      * Wrapper around site_url(). Returns the URL used for the WP installation.
-     *
-     * @return string home URL
      */
-    public static function wp_installation_url() {
+    public static function wp_installation_url() : string {
         return site_url();
     }
 
     /**
      * Echo the selected value for an option tag if the statement is true.
-     *
-     * @return null
      */
-    public static function selected_if( $statement ) {
+    public static function selected_if( bool $statement ) : void {
         echo ( $statement == true ? 'selected="selected"' : '' );
     }
 
     /**
      * Echo the checked value for an input tag if the statement is true.
-     *
-     * @return null
      */
-    public static function checked_if( $statement ) {
+    public static function checked_if( bool $statement ) : void {
         echo ( $statement == true ? 'checked="checked"' : '' );
     }
 
@@ -71,16 +66,18 @@ class Util {
      *
      * @return string
      */
-    public static function truncate( $string, $length = 30, $omission = '...' ) {
+    public static function truncate(
+        string $string,
+        int $length = 30,
+        string $omission = '...'
+    ) : string {
         return ( strlen( $string ) > $length + 3 ) ? ( substr( $string, 0, $length ) . $omission ) : $string;
     }
 
     /**
      * Use trailingslashit unless the string is empty
-     *
-     * @return string
      */
-    public static function trailingslashit_unless_blank( $string ) {
+    public static function trailingslashit_unless_blank( string $string ) : string {
         return $string === '' ? $string : trailingslashit( $string );
     }
 
@@ -92,7 +89,7 @@ class Util {
      */
     public static function error_log( $object = null ) {
         $contents = self::get_contents_from_object( $object );
-        error_log( $contents );
+        error_log( (string) $contents );
     }
 
     /**
@@ -136,7 +133,7 @@ class Util {
         $contents = self::get_contents_from_object( $object );
 
         // get message onto a single line
-        $contents = preg_replace( "/\r|\n/", '', $contents );
+        $contents = preg_replace( "/\r|\n/", '', (string) $contents );
 
         $message .= $contents . "\n";
 
@@ -159,7 +156,7 @@ class Util {
      * Get contents of an object as a string
      *
      * @param  mixed  $object Object to get string for
-     * @return string         String containing the contents of the object
+     * @return string|bool String containing the contents of the object
      */
     protected static function get_contents_from_object( $object ) {
         if ( is_string( $object ) ) {
@@ -170,6 +167,7 @@ class Util {
         var_dump( $object );
         $contents = ob_get_contents();
         ob_end_clean();
+
         return $contents;
     }
 
@@ -225,7 +223,7 @@ class Util {
 
         // if no path, check for an ending slash; if there isn't one, add one
         if ( ! isset( $parsed_extracted_url['path'] ) ) {
-            $clean_url = self::remove_params_and_fragment( $extracted_url );
+            $clean_url = (string) self::remove_params_and_fragment( $extracted_url );
             $fragment = substr( $extracted_url, strlen( $clean_url ) );
             $extracted_url = trailingslashit( $clean_url ) . $fragment;
         }
@@ -284,8 +282,8 @@ class Util {
             // match everything before the last slash
             $pattern = '/(.*)\/[^\/]*$/';
             // remove the last slash and anything after it
-            $new_page_path = preg_replace( $pattern, '$1', $page_path );
-            return self::create_offline_path( $extracted_path, $new_page_path, ++$iterations );
+            $new_page_path = preg_replace( $pattern, '$1', (string) $page_path );
+            return self::create_offline_path( $extracted_path, (string) $new_page_path, ++$iterations );
         }
     }
 
@@ -298,7 +296,7 @@ class Util {
      * @return boolean      true if URL is local, false otherwise
      */
     public static function is_local_url( $url ) {
-        return ( stripos( self::strip_protocol_from_url( $url ), self::origin_host() ) === 0 );
+        return ( stripos( (string) self::strip_protocol_from_url( $url ), self::origin_host() ) === 0 );
     }
 
     /**
@@ -309,7 +307,7 @@ class Util {
      */
     public static function get_path_from_local_url( $url ) {
         $url = self::strip_protocol_from_url( $url );
-        $url = str_replace( self::origin_host(), '', $url );
+        $url = str_replace( self::origin_host(), '', (string) $url );
         return $url;
     }
 
@@ -317,7 +315,7 @@ class Util {
      * Returns a URL w/o the query string or fragment (i.e. nothing after the path)
      *
      * @param  string $url URL to remove query string/fragment from
-     * @return string      URL without query string/fragment
+     * @return string|null      URL without query string/fragment
      */
     public static function remove_params_and_fragment( $url ) {
         return preg_replace( '/(\?|#).*/', '', $url );
@@ -327,12 +325,17 @@ class Util {
      * Converts a textarea into an array w/ each line being an entry in the array
      *
      * @param  string $textarea Textarea to convert
-     * @return array            Converted array
+     * @return mixed[]            Converted array
      */
     public static function string_to_array( $textarea ) {
         // using preg_split to intelligently break at newlines
         // see: http://stackoverflow.com/questions/1483497/how-to-put-string-in-array-split-by-new-line
         $lines = preg_split( "/\r\n|\n|\r/", $textarea );
+
+        if ( ! is_array( $lines ) ) {
+            return [];
+        }
+
         array_walk( $lines, 'trim' );
         $lines = array_filter( $lines );
         return $lines;
@@ -342,7 +345,7 @@ class Util {
      * Remove the //, http://, https:// protocols from a URL
      *
      * @param  string $url URL to remove protocol from
-     * @return string      URL sans http/https protocol
+     * @return string|null      URL sans http/https protocol
      */
     public static function strip_protocol_from_url( $url ) {
         $pattern = '/^(https?:)?\/\//';
@@ -353,7 +356,7 @@ class Util {
      * Remove index.html/index.php from a URL
      *
      * @param  string $url URL to remove index file from
-     * @return string      URL sans index file
+     * @return string|null      URL sans index file
      */
     public static function strip_index_filenames_from_url( $url ) {
         $pattern = '/index.(html?|php)$/';
@@ -380,7 +383,7 @@ class Util {
      *     $info['filename']  === 'function.pathinfo'
      *
      * @param  string $path The URL path
-     * @return array        Array containing info on the parts of the path
+     * @return mixed[]        Array containing info on the parts of the path
      */
     public static function url_path_info( $path ) {
         $info = [
@@ -393,26 +396,26 @@ class Util {
         $path = self::remove_params_and_fragment( $path );
 
         // everything after the last slash is the filename
-        $last_slash_location = strrpos( $path, '/' );
+        $last_slash_location = strrpos( (string) $path, '/' );
         if ( $last_slash_location === false ) {
             $info['basename'] = $path;
         } else {
-            $info['dirname'] = substr( $path, 0, $last_slash_location + 1 );
-            $info['basename'] = substr( $path, $last_slash_location + 1 );
+            $info['dirname'] = substr( (string) $path, 0, $last_slash_location + 1 );
+            $info['basename'] = substr( (string) $path, $last_slash_location + 1 );
         }
 
         // finding the dot for the extension
-        $last_dot_location = strrpos( $info['basename'], '.' );
+        $last_dot_location = strrpos( (string) $info['basename'], '.' );
         if ( $last_dot_location === false ) {
             $info['filename'] = $info['basename'];
         } else {
-            $info['filename'] = substr( $info['basename'], 0, $last_dot_location );
-            $info['extension'] = substr( $info['basename'], $last_dot_location + 1 );
+            $info['filename'] = substr( (string) $info['basename'], 0, $last_dot_location );
+            $info['extension'] = substr( (string) $info['basename'], $last_dot_location + 1 );
         }
 
         // substr sets false if it fails, we're going to reset those values to ''
         foreach ( $info as $name => $value ) {
-            if ( $value === false ) {
+            if ( ! $value ) {
                 $info[ $name ] = '';
             }
         }
@@ -425,7 +428,7 @@ class Util {
      *
      * @param string $path File path to add trailing directory separator to
      */
-    public static function add_trailing_directory_separator( $path ) {
+    public static function add_trailing_directory_separator( $path ) : string {
         return self::remove_trailing_directory_separator( $path ) . DIRECTORY_SEPARATOR;
     }
 
@@ -434,7 +437,7 @@ class Util {
      *
      * @param string $path File path to remove trailing directory separators from
      */
-    public static function remove_trailing_directory_separator( $path ) {
+    public static function remove_trailing_directory_separator( $path ) : string {
         return rtrim( $path, DIRECTORY_SEPARATOR );
     }
 
@@ -443,7 +446,7 @@ class Util {
      *
      * @param string $path File path to add leading directory separator to
      */
-    public static function add_leading_directory_separator( $path ) {
+    public static function add_leading_directory_separator( $path ) : string {
         return DIRECTORY_SEPARATOR . self::remove_leading_directory_separator( $path );
     }
 
@@ -452,7 +455,7 @@ class Util {
      *
      * @param string $path File path to remove leading directory separators from
      */
-    public static function remove_leading_directory_separator( $path ) {
+    public static function remove_leading_directory_separator( $path ) : string {
         return ltrim( $path, DIRECTORY_SEPARATOR );
     }
 
@@ -461,7 +464,7 @@ class Util {
      *
      * @param string $path URL path to add leading slash to
      */
-    public static function add_leading_slash( $path ) {
+    public static function add_leading_slash( $path ) : string {
         return '/' . self::remove_leading_slash( $path );
     }
 
@@ -470,17 +473,17 @@ class Util {
      *
      * @param string $path URL path to remove leading slash from
      */
-    public static function remove_leading_slash( $path ) {
+    public static function remove_leading_slash( $path ) : string {
         return ltrim( $path, '/' );
     }
 
     /**
      * Add a message to the array of status messages for the job
      *
-     * @param  array  $messages  Array of messages to add the message to
+     * @param  mixed[]  $messages  Array of messages to add the message to
      * @param  string $task_name Name of the task
      * @param  string $message   Message to display about the status of the job
-     * @return void
+     * @return mixed[] messages
      */
     public static function add_archive_status_message( $messages, $task_name, $message ) {
         // if the state exists, set the datetime and message

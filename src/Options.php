@@ -48,7 +48,7 @@ class Options {
     /**
      * Return an instance of Options
      *
-     * @return SimplerStatic
+     * @return Options
      */
     public static function instance() {
         if ( null === self::$instance ) {
