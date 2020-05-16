@@ -23,7 +23,7 @@ class Upgrade_Handler {
     /**
      * Default options to set for the plugin
      *
-     * @var array
+     * @var mixed[]
      */
     protected static $default_options = null;
 

@@ -11,7 +11,7 @@ class Setup_Task extends Task {
     /**
      * Do the initial setup for generating a static archive
      *
-     * @return boolean true this always completes in one run, so returns true
+     * @return bool|\WP_Error true this always completes in one run, so returns true
      */
     public function perform() {
         $message = __( 'Setting up', 'simplerstatic' );
@@ -54,7 +54,7 @@ class Setup_Task extends Task {
      *
      * @return void
      */
-    public static function add_origin_and_additional_urls_to_db( $additional_urls ) {
+    public static function add_origin_and_additional_urls_to_db( string  $additional_urls ) {
         $origin_url = trailingslashit( Util::origin_url() );
         Util::debug_log( 'Adding origin URL to queue: ' . $origin_url );
         $static_page = Page::query()->find_or_initialize_by( 'url', $origin_url );
@@ -81,7 +81,7 @@ class Setup_Task extends Task {
      *
      * @return void
      */
-    public static function add_additional_files_to_db( $additional_files ) {
+    public static function add_additional_files_to_db( string $additional_files ) {
         // Convert additional files to URLs and add to queue
         foreach ( Util::string_to_array( $additional_files ) as $item ) {
 

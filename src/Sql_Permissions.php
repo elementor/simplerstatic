@@ -16,14 +16,14 @@ class Sql_Permissions {
     /**
      * Singleton instance
      *
-     * @var SimplerStatic\Sql_Permissions
+     * @var Sql_Permissions
      */
     protected static $instance = null;
 
     /**
      * SQL permissions that a user could have
      *
-     * @var array
+     * @var mixed[]
      */
     private $permissions = [
         'select' => false,
@@ -57,9 +57,9 @@ class Sql_Permissions {
     public function __wakeup() {}
 
     /**
-     * Return an instance of SimplerStatic\Sql_Permissions
+     * Return an instance of Sql_Permissions
      *
-     * @return SimplerStatic\Sql_Permissions
+     * @return Sql_Permissions
      */
     public static function instance() {
         if ( null === self::$instance ) {
@@ -105,7 +105,7 @@ class Sql_Permissions {
     /**
      * Check if the MySQL user is able to perform the provided permission
      */
-    public function can( $permission ) {
+    public function can( string $permission ) : bool {
         return ( isset( $this->permissions[ $permission ] ) && $this->permissions[ $permission ] === true );
     }
 }

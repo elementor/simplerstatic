@@ -47,10 +47,10 @@ abstract class Task {
             ->save();
     }
 
-    /*
-    * Override this method to perform the task action.
-    * @return boolean|WP_Error true if done, false if not done, WP_Error if error
-    */
+    /**
+     * Override this method to perform the task action.
+     * @return mixed true if done, false if not done, WP_Error if error
+     */
     abstract public function perform();
 
 }

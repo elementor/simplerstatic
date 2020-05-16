@@ -14,4 +14,7 @@ parameters:
         - '#^Access to an undefined property SimplerStatic\\Page::\$url#'
         - '#^Access to an undefined property SimplerStatic\\Page::\$http_status_code#'
         - '#^Access to private property SimplerStatic\\Page::\$last_checked_at#'
+        - '#^Call to an undefined method SimplerStatic\\Query::save\(\)#'
+        - '#^Call to an undefined method SimplerStatic\\Query::set_status_message\(\)#'
+        - '#^Access to an undefined property SimplerStatic\\Query::\$found_on_id#'
     excludes_analyse:

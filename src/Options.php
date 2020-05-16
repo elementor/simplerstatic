@@ -25,11 +25,12 @@ class Options {
     protected $options = [];
 
     /**
-     * Disable usage of "new"
+     * Note: was used in Upgrade_Handler
+     * so changed to public
      *
      * @return void
      */
-    protected function __construct() {}
+    public function __construct() {}
 
     /**
      * Disable cloning of the class

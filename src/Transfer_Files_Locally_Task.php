@@ -41,7 +41,7 @@ class Transfer_Files_Locally_Task extends Task {
      * Copy temporary static files to a local directory
      *
      * @param  string $destination_dir The directory to put the files
-     * @return array (# pages processed, # pages remaining)
+     * @return mixed[] (# pages processed, # pages remaining)
      */
     public function copy_static_files( $destination_dir ) {
         $batch_size = 100;
