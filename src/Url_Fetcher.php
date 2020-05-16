@@ -20,7 +20,7 @@ class Url_Fetcher {
     /**
      * Singleton instance
      *
-     * @var SimplerStatic\Url_Fetcher
+     * @var Url_Fetcher
      */
     protected static $instance = null;
 
@@ -53,7 +53,7 @@ class Url_Fetcher {
     public function __wakeup() {}
 
     /**
-     * Return an instance of SimplerStatic\Url_Fetcher
+     * Return an instance of Url_Fetcher
      *
      * @return SimplerStatic
      */
@@ -69,7 +69,7 @@ class Url_Fetcher {
     /**
      * Fetch the URL and return a \WP_Error if we get one, otherwise a Response class.
      *
-     * @param SimplerStatic\Page $static_page URL to fetch
+     * @param Page $static_page URL to fetch
      * @return boolean                        Was the fetch successful?
      */
     public function fetch( Page $static_page ) {
@@ -143,15 +143,20 @@ class Url_Fetcher {
      * This will also create directories as needed so that a file could be
      * created at the returned file path.
      *
-     * @param SimplerStatic\Page $static_page The SimplerStatic\Page
+     * @param Page $static_page
      * @return string|null                The relative file path of the file
      */
     public function create_directories_for_static_page( $static_page ) {
         $url_parts = parse_url( $static_page->url );
+
+        if ( ! $url_parts ) {
+            return null;
+        }
+
         // a domain with no trailing slash has no path, so we're giving it one
         $path = isset( $url_parts['path'] ) ? $url_parts['path'] : '/';
 
-        $origin_path_length = strlen( parse_url( Util::origin_url(), PHP_URL_PATH ) );
+        $origin_path_length = strlen( (string) parse_url( Util::origin_url(), PHP_URL_PATH ) );
         if ( $origin_path_length > 1 ) { // prevents removal of '/'
             $path = substr( $path, $origin_path_length );
         }
@@ -199,7 +204,10 @@ class Url_Fetcher {
         return null;
     }
 
-    public static function remote_get( $url, $filename = null ) {
+    /**
+     * @return mixed|WP_Error
+     */
+    public static function remote_get( string $url, string $filename = null ) {
         $basic_auth_digest = Options::instance()->get( 'http_basic_auth_digest' );
 
         $args = [
