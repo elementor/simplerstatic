@@ -106,6 +106,9 @@ class Sql_Permissions {
      * Check if the MySQL user is able to perform the provided permission
      */
     public function can( string $permission ) : bool {
-        return ( isset( $this->permissions[ $permission ] ) && $this->permissions[ $permission ] === true );
+        return (
+            isset( $this->permissions[ $permission ] ) &&
+            $this->permissions[ $permission ] === true
+        );
     }
 }

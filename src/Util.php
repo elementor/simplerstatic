@@ -6,8 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-$path = plugin_dir_path( dirname( __FILE__ ) );
-require_once $path . 'includes/libraries/phpuri.php';
+$ppath = plugin_dir_path( dirname( __FILE__ ) );
+require_once $ppath . 'includes/libraries/phpuri.php';
 
 /**
  * Simpler Static utility class
@@ -71,7 +71,9 @@ class Util {
         int $length = 30,
         string $omission = '...'
     ) : string {
-        return ( strlen( $string ) > $length + 3 ) ? ( substr( $string, 0, $length ) . $omission ) : $string;
+        return ( strlen( $string ) > $length + 3 ) ?
+            ( substr( $string, 0, $length ) . $omission ) :
+            $string;
     }
 
     /**
@@ -89,7 +91,7 @@ class Util {
      */
     public static function error_log( $object = null ) {
         $contents = self::get_contents_from_object( $object );
-        error_log( (string) $contents );
+        $this->error_log( (string) $contents );
     }
 
     /**
@@ -119,7 +121,7 @@ class Util {
         $debug_file = self::get_debug_log_filename();
 
         // add timestamp and newline
-        $message = '[' . date( 'Y-m-d H:i:s' ) . '] ';
+        $message = '[' . gmdate( 'Y-m-d H:i:s' ) . '] ';
 
         $trace = debug_backtrace();
         if ( isset( $trace[0]['file'] ) ) {
@@ -138,7 +140,7 @@ class Util {
         $message .= $contents . "\n";
 
         // log the message to the debug file instead of the usual error_log location
-        error_log( $message, 3, $debug_file );
+        $this->error_log( $message, 3, $debug_file );
     }
 
     /**
@@ -164,7 +166,9 @@ class Util {
         }
 
         ob_start();
+        // phpcs:disable
         var_dump( $object );
+        // phpcs:enable
         $contents = ob_get_contents();
         ob_end_clean();
 
@@ -238,17 +242,21 @@ class Util {
             return $extracted_url;
 
         } else { // no host on extracted page (might be relative url)
+            $path = isset( $parsed_extracted_url['path'] ) ?
+                $parsed_extracted_url['path'] :
+                '';
 
-            $path = isset( $parsed_extracted_url['path'] ) ? $parsed_extracted_url['path'] : '';
-
-            $query = isset( $parsed_extracted_url['query'] ) ? '?' . $parsed_extracted_url['query'] : '';
-            $fragment = isset( $parsed_extracted_url['fragment'] ) ? '#' . $parsed_extracted_url['fragment'] : '';
+            $query = isset( $parsed_extracted_url['query'] ) ?
+                '?' . $parsed_extracted_url['query'] :
+                '';
+            $fragment = isset( $parsed_extracted_url['fragment'] ) ?
+                '#' . $parsed_extracted_url['fragment'] :
+                '';
 
             // turn our relative url into an absolute url
             $extracted_url = \phpUri::parse( $page_url )->join( $path . $query . $fragment );
 
             return $extracted_url;
-
         }
     }
 
@@ -276,14 +284,19 @@ class Util {
         if ( strpos( $page_path, '/' ) === false || strpos( $extracted_path, $page_path ) === 0 ) {
             $extracted_path = substr( $extracted_path, strlen( $page_path ) );
             $iterations = ( $iterations == 0 ) ? 0 : $iterations - 1;
-            $new_path = '.' . str_repeat( '/..', $iterations ) . self::add_leading_slash( $extracted_path );
+            $new_path = '.' . str_repeat( '/..', $iterations ) .
+                self::add_leading_slash( $extracted_path );
             return $new_path;
         } else {
             // match everything before the last slash
             $pattern = '/(.*)\/[^\/]*$/';
             // remove the last slash and anything after it
             $new_page_path = preg_replace( $pattern, '$1', (string) $page_path );
-            return self::create_offline_path( $extracted_path, (string) $new_page_path, ++$iterations );
+            return self::create_offline_path(
+                $extracted_path,
+                (string) $new_page_path,
+                ++$iterations
+            );
         }
     }
 
@@ -296,7 +309,9 @@ class Util {
      * @return boolean      true if URL is local, false otherwise
      */
     public static function is_local_url( $url ) {
-        return ( stripos( (string) self::strip_protocol_from_url( $url ), self::origin_host() ) === 0 );
+        return (
+            stripos( (string) self::strip_protocol_from_url( $url ), self::origin_host() ) === 0
+        );
     }
 
     /**
@@ -329,7 +344,7 @@ class Util {
      */
     public static function string_to_array( $textarea ) {
         // using preg_split to intelligently break at newlines
-        // see: http://stackoverflow.com/questions/1483497/how-to-put-string-in-array-split-by-new-line
+        // see: https://stackoverflow.com/q/1483497/1668057
         $lines = preg_split( "/\r\n|\n|\r/", $textarea );
 
         if ( ! is_array( $lines ) ) {
@@ -369,7 +384,7 @@ class Util {
      * @return string|bool MySQL formatted datetime
      */
     public static function formatted_datetime() {
-        return date( 'Y-m-d H:i:s' );
+        return gmdate( 'Y-m-d H:i:s' );
     }
 
     /**

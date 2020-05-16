@@ -1,6 +1,10 @@
 <?php
 namespace SimplerStatic;
 
+use RecursiveIteratorIterator;
+use RecursiveDirectoryIterator;
+use FilesystemIterator;
+
 class Wrapup_Task extends Task {
 
     /**
@@ -29,14 +33,21 @@ class Wrapup_Task extends Task {
         $archive_dir = $this->options->get_archive_dir();
 
         if ( file_exists( $archive_dir ) ) {
-            $directory_iterator = new \RecursiveDirectoryIterator( $archive_dir, \FilesystemIterator::SKIP_DOTS );
-            $recursive_iterator = new \RecursiveIteratorIterator( $directory_iterator, \RecursiveIteratorIterator::CHILD_FIRST );
+            $directory_iterator = new RecursiveDirectoryIterator(
+                $archive_dir,
+                FilesystemIterator::SKIP_DOTS
+            );
+            $recursive_iterator = new RecursiveIteratorIterator(
+                $directory_iterator,
+                RecursiveIteratorIterator::CHILD_FIRST
+            );
 
             // recurse through the entire directory and delete all files / subdirectories
             foreach ( $recursive_iterator as $item ) {
                 $success = $item->isDir() ? rmdir( $item ) : unlink( $item );
                 if ( ! $success ) {
-                    $message = sprintf( __( 'Could not delete temporary file or directory: %s', 'simplerstatic' ), $item );
+                    $message =
+                        sprintf( 'Could not delete temporary file or directory: %s', $item );
                     $this->save_status_message( $message );
                     return true;
                 }
@@ -45,7 +56,8 @@ class Wrapup_Task extends Task {
             // must make sure to delete the original directory at the end
             $success = rmdir( $archive_dir );
             if ( ! $success ) {
-                $message = sprintf( __( 'Could not delete temporary file or directory: %s', 'simplerstatic' ), $archive_dir );
+                $message =
+                    sprintf( 'Could not delete temporary file or directory: %s', $archive_dir );
                 $this->save_status_message( $message );
                 return true;
             }

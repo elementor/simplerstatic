@@ -103,7 +103,8 @@ class Diagnostic {
                 $result = $this->{$test['function']}( $param );
 
                 if ( ! isset( $result['message'] ) ) {
-                    $result['message'] = $result['test'] ? __( 'OK', 'simplerstatic' ) : __( 'FAIL', 'simplerstatic' );
+                    $result['message'] =
+                        $result['test'] ? 'OK' : 'FAIL';
                 }
 
                 $this->results[ $title ][] = $result;
@@ -118,7 +119,10 @@ class Diagnostic {
         $destination_scheme = $this->options->get( 'destination_scheme' );
         $destination_host = $this->options->get( 'destination_host' );
         $destination_url = $destination_scheme . $destination_host;
-        $label = sprintf( __( 'Checking if Destination URL <code>%s</code> is valid', 'simplerstatic' ), $destination_url );
+        $label = sprintf(
+            'Checking if Destination URL <code>%s</code> is valid',
+            $destination_url
+        );
         return [
             'label' => $label,
             'test' => filter_var( $destination_url, FILTER_VALIDATE_URL ) !== false,
@@ -153,7 +157,11 @@ class Diagnostic {
      */
     public function is_additional_file_valid( string $file ) {
         $label = sprintf( 'Checking if Additional File/Dir <code>%s</code> is valid', $file );
-        if ( stripos( $file, get_home_path() ) !== 0 && stripos( $file, WP_PLUGIN_DIR ) !== 0 && stripos( $file, WP_CONTENT_DIR ) !== 0 ) {
+        if (
+            stripos( $file, get_home_path() ) !== 0 &&
+            stripos( $file, WP_PLUGIN_DIR ) !== 0 &&
+            stripos( $file, WP_CONTENT_DIR ) !== 0
+        ) {
             $test = false;
             $message = 'Not a valid path';
         } elseif ( ! is_readable( $file ) ) {
@@ -187,7 +195,10 @@ class Diagnostic {
      */
     public function can_wp_make_requests_to_itself() {
         $ip_address = getHostByName( (string) getHostName() );
-        $label = sprintf( 'Checking if WordPress can make requests to itself from <code>%s</code>', $ip_address );
+        $label = sprintf(
+            'Checking if WordPress can make requests to itself from <code>%s</code>',
+            $ip_address
+        );
 
         $url = Util::origin_url();
         $response = Url_Fetcher::remote_get( $url );
@@ -202,7 +213,8 @@ class Diagnostic {
                 $message = $code;
             } elseif ( in_array( $code, Page::$processable_status_codes ) ) {
                 $test = false;
-                $message = sprintf( 'Received a %s response. This might indicate a problem.', $code );
+                $message =
+                    sprintf( 'Received a %s response. This might indicate a problem.', $code );
             } else {
                 $test = false;
                 $message = sprintf( 'Received a %s response.', $code );
@@ -222,7 +234,11 @@ class Diagnostic {
      */
     public function is_temp_files_dir_readable() {
         $temp_files_dir = $this->options->get( 'temp_files_dir' );
-        $label = sprintf( __( 'Checking if web server can read from Temp Files Directory: <code>%s</code>', 'simplerstatic' ), $temp_files_dir );
+        $label = sprintf(
+            'Checking if web server can read from Temp Files Directory: <code>%s</code>',
+            $temp_files_dir
+        );
+
         return [
             'label' => $label,
             'test' => is_readable( $temp_files_dir ),
@@ -234,7 +250,11 @@ class Diagnostic {
      */
     public function is_temp_files_dir_writeable() {
         $temp_files_dir = $this->options->get( 'temp_files_dir' );
-        $label = sprintf( __( 'Checking if web server can write to Temp Files Directory: <code>%s</code>', 'simplerstatic' ), $temp_files_dir );
+        $label = sprintf(
+            'Checking if web server can write to Temp Files Directory: <code>%s</code>',
+            $temp_files_dir
+        );
+
         return [
             'label' => $label,
             'test' => is_writable( $temp_files_dir ),
@@ -246,7 +266,11 @@ class Diagnostic {
      */
     public function is_local_dir_writeable() {
         $local_dir = $this->options->get( 'local_dir' );
-        $label = sprintf( __( 'Checking if web server can write to Local Directory: <code>%s</code>', 'simplerstatic' ), $local_dir );
+        $label = sprintf(
+            'Checking if web server can write to Local Directory: <code>%s</code>',
+            $local_dir
+        );
+
         return [
             'label' => $label,
             'test' => is_writable( $local_dir ),

@@ -36,7 +36,9 @@ class Fetch_Urls_Task extends Task {
             ->count();
         $total_pages = Page::query()->count();
         $pages_processed = $total_pages - $pages_remaining;
-        Util::debug_log( 'Total pages: ' . $total_pages . '; Pages remaining: ' . $pages_remaining );
+        Util::debug_log(
+            'Total pages: ' . $total_pages . '; Pages remaining: ' . $pages_remaining
+        );
 
         while ( $static_page = array_shift( $static_pages ) ) {
             Util::debug_log( 'URL: ' . $static_page->url );
@@ -85,7 +87,8 @@ class Fetch_Urls_Task extends Task {
             $this->handle_200_response( $static_page, $save_file, $follow_urls );
         }
 
-        $message = sprintf( __( 'Fetched %1$d of %2$d pages/files', 'simplerstatic' ), $pages_processed, $total_pages );
+        $message =
+            sprintf( 'Fetched %1$d of %2$d pages/files', $pages_processed, $total_pages );
         $this->save_status_message( $message );
 
         // if we haven't processed any additional pages, we're done
@@ -111,7 +114,7 @@ class Fetch_Urls_Task extends Task {
         }
 
         if ( $follow_urls ) {
-            Util::debug_log( 'Adding ' . sizeof( $urls ) . ' URLs to the queue' );
+            Util::debug_log( 'Adding ' . count( $urls ) . ' URLs to the queue' );
 
             foreach ( $urls as $url ) {
                 $this->set_url_found_on( $static_page, $url );
@@ -127,9 +130,7 @@ class Fetch_Urls_Task extends Task {
             $sha1 = (string) sha1_file( $file );
 
             // if the content is identical, move on to the next file
-            if ( $static_page->is_content_identical( $sha1 ) ) {
-                // continue;
-            } else {
+            if ( ! $static_page->is_content_identical( $sha1 ) ) {
                 $static_page->set_content_hash( $sha1 );
             }
         } else {
@@ -166,7 +167,10 @@ class Fetch_Urls_Task extends Task {
             // check for this and just add the trailing slashed version
             if ( $redirect_url === trailingslashit( $current_url ) ) {
 
-                Util::debug_log( 'This is a redirect to a trailing slashed version of the same page; adding new URL to the queue' );
+                Util::debug_log(
+                    'This is a redirect to a trailing slashed version of the same page;' .
+                    ' adding new URL to the queue'
+                );
                 $this->set_url_found_on( $static_page, $redirect_url );
 
                 // Don't create a redirect page if it's just a redirect from
@@ -185,7 +189,8 @@ class Fetch_Urls_Task extends Task {
                 )
             ) {
                 Util::debug_log(
-                    'This looks like a redirect from http to https (or visa versa); adding new URL to the queue'
+                    'This looks like a redirect from http to https (or visa versa);' .
+                    ' adding new URL to the queue'
                 );
                 $this->set_url_found_on( $static_page, $redirect_url );
 
@@ -194,7 +199,9 @@ class Fetch_Urls_Task extends Task {
                 if ( Util::is_local_url( $redirect_url ) ) {
 
                     if ( $follow_urls ) {
-                        Util::debug_log( 'Redirect URL is on the same domain; adding the URL to the queue' );
+                        Util::debug_log(
+                            'Redirect URL is on the same domain; adding the URL to the queue'
+                        );
                         $this->set_url_found_on( $static_page, $redirect_url );
                     } else {
                         Util::debug_log( 'Not following the redirect URL for this page' );
@@ -230,9 +237,7 @@ class Fetch_Urls_Task extends Task {
                     $sha1 = (string) sha1_file( $this->archive_dir . $filename );
 
                     // if the content is identical, move on to the next file
-                    if ( $static_page->is_content_identical( $sha1 ) ) {
-                        // continue;
-                    } else {
+                    if ( ! $static_page->is_content_identical( $sha1 ) ) {
                         $static_page->set_content_hash( $sha1 );
                     }
                 } else {
@@ -276,7 +281,10 @@ class Fetch_Urls_Task extends Task {
      */
     protected function set_url_found_on( $static_page, $child_url ) {
         $child_static_page = Page::query()->find_or_create_by( 'url', $child_url );
-        if ( $child_static_page->found_on_id === null || $child_static_page->updated_at < $this->archive_start_time ) {
+        if (
+            $child_static_page->found_on_id === null ||
+            $child_static_page->updated_at < $this->archive_start_time
+        ) {
             $child_static_page->found_on_id = $static_page->id;
             $child_static_page->save();
         }
@@ -290,7 +298,8 @@ class Fetch_Urls_Task extends Task {
      * @return string|void                The file path of the saved file
      */
     protected function save_static_page_content_to_file( $static_page, $content ) {
-        $relative_filename = Url_Fetcher::instance()->create_directories_for_static_page( $static_page );
+        $relative_filename =
+            Url_Fetcher::instance()->create_directories_for_static_page( $static_page );
 
         if ( $relative_filename ) {
             $file_path = $this->archive_dir . $relative_filename;

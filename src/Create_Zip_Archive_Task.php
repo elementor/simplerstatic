@@ -2,6 +2,8 @@
 namespace SimplerStatic;
 
 use ZipArchive;
+use RecursiveIteratorIterator;
+use RecursiveDirectoryIterator;
 
 class Create_Zip_Archive_Task extends Task {
 
@@ -36,16 +38,25 @@ class Create_Zip_Archive_Task extends Task {
 
         Util::debug_log( 'Fetching list of files to include in zip' );
         $files = [];
-        $iterator = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $archive_dir, \RecursiveDirectoryIterator::SKIP_DOTS ) );
+        $iterator =
+            new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator(
+                    $archive_dir,
+                    RecursiveDirectoryIterator::SKIP_DOTS
+                )
+            );
         Util::debug_log( 'Creating zip archive' );
 
         foreach ( $iterator as $file_name => $file_object ) {
-            if ( ! $zip_archive->addFile( $file_object, str_replace( $archive_dir, '', $file_name ) ) ) {
+            if (
+                ! $zip_archive->addFile( $file_object, str_replace( $archive_dir, '', $file_name ) )
+            ) {
                 return new \WP_Error( 'create_zip_failed', 'Unable to create ZIP archive' );
             }
         }
 
-        $download_url = get_admin_url( null, 'admin.php' ) . '?' . Plugin::SLUG . '_zip_download=' . basename( $zip_filename );
+        $download_url = get_admin_url( null, 'admin.php' ) . '?' .
+            Plugin::SLUG . '_zip_download=' . basename( $zip_filename );
 
         return $download_url;
     }

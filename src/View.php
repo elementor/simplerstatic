@@ -156,7 +156,10 @@ class View {
 
         // must include a template
         if ( ! is_readable( $this->template ) ) {
-            return new \WP_Error( 'invalid_template', sprintf( __( "Can't find view template: %s", 'simplerstatic' ), $this->template ) );
+            return new \WP_Error(
+                'invalid_template',
+                sprintf( "Can't find view template: %s", $this->template )
+            );
         }
 
         // layouts are optional. if no layout provided, use the template by itself.
