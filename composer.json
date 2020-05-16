@@ -1,0 +1,68 @@
+{
+    "name": "wp2static/simplerstatic",
+    "description": "A simple WordPress static site generator",
+    "homepage": "https://simplerstatic.com",
+      "license": "UNLICENSE",
+      "authors": [
+        {
+          "name": "Leon Stafford",
+          "email": "me@ljs.dev",
+          "homepage": "https://ljs.dev"
+        }
+      ],
+    "type": "wordpress-plugin",
+    "support": {
+        "issues": "https://github.com/WP2Static/simplerstatic/issues",
+        "source": "https://github.com/WP2Static/simplerstatic"
+    },
+    "require": {
+        "php": ">=7.3",
+        "sunra/php-simple-html-dom-parser": "*"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "*",
+        "thecodingmachine/phpstan-strict-rules": "*",
+        "szepeviktor/phpstan-wordpress": "*",
+        "squizlabs/php_codesniffer": "*",
+        "phpunit/phpunit": "*",
+        "dealerdirect/phpcodesniffer-composer-installer": "*",
+        "wp-coding-standards/wpcs": "*",
+        "php-parallel-lint/php-parallel-lint": "*",
+        "10up/wp_mock": "^0.4.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "SimplerStatic\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "PHPStan\\WordPress\\": "tests/phpstan/",
+            "SimplerStatic\\": "src/"
+        }
+    },
+    "config": {
+        "platform": {
+          "php": "7.3"
+        },
+        "preferred-install": {
+            "*": "dist"
+        },
+        "classmap-authoritative": true
+    },
+    "scripts": {
+        "phpstan": "php -d memory_limit=-1 ./vendor/bin/phpstan analyse",
+        "phpcs": "vendor/bin/phpcs --standard=./tools/phpcs.xml --ignore=*/tests/*,*/admin/*,**/coverage/*,*.js,*/vendor/*,*/views/*.php ./",
+        "phpcbf": "vendor/bin/phpcbf --standard=./tools/phpcs.xml --ignore=*/js/*,*/tests/*,*/admin/*,*/coverage/*,*.js,*/vendor/*,*/views/*.php ./",
+        "phpunit": "vendor/bin/phpunit ./tests/unit/",
+        "coverage": "vendor/bin/phpunit tests/unit --coverage-html coverage --whitelist src/",
+        "lint": "vendor/bin/parallel-lint --exclude vendor .",
+        "test": [
+            "@lint",
+            "@phpcs",
+            "@phpstan",
+            "@phpunit"
+        ],
+        "build": "/bin/sh tools/build_release.sh"
+    }
+}

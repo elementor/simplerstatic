@@ -14,7 +14,7 @@ class Plugin {
 	 * Plugin version
 	 * @var string
 	 */
-	const VERSION = '2.1.0';
+	const VERSION = '0.1';
 
 	/**
 	 * The slug of the plugin; used in actions, filters, i18n, table names, etc.
@@ -119,29 +119,8 @@ class Plugin {
 	 */
 	private function includes() {
 		$path = plugin_dir_path( dirname( __FILE__ ) );
-		require_once $path . 'includes/shims.php';
 		require_once $path . 'includes/libraries/phpuri.php';
-		require_once $path . 'includes/libraries/PhpSimple/HtmlDomParser.php';
 		require_once $path . 'includes/libraries/wp-background-processing/wp-background-processing.php';
-		require_once $path . 'includes/class-ss-options.php';
-		require_once $path . 'includes/class-ss-view.php';
-		require_once $path . 'includes/class-ss-url-extractor.php';
-		require_once $path . 'includes/class-ss-url-fetcher.php';
-		require_once $path . 'includes/class-ss-archive-creation-job.php';
-		require_once $path . 'includes/tasks/class-ss-task.php';
-		require_once $path . 'includes/tasks/class-ss-setup-task.php';
-		require_once $path . 'includes/tasks/class-ss-fetch-urls-task.php';
-		require_once $path . 'includes/tasks/class-ss-transfer-files-locally-task.php';
-		require_once $path . 'includes/tasks/class-ss-create-zip-archive.php';
-		require_once $path . 'includes/tasks/class-ss-wrapup-task.php';
-		require_once $path . 'includes/tasks/class-ss-cancel-task.php';
-		require_once $path . 'includes/class-ss-query.php';
-		require_once $path . 'includes/models/class-ss-model.php';
-		require_once $path . 'includes/models/class-ss-page.php';
-		require_once $path . 'includes/class-ss-diagnostic.php';
-		require_once $path . 'includes/class-ss-sql-permissions.php';
-		require_once $path . 'includes/class-ss-upgrade-handler.php';
-		require_once $path . 'includes/class-ss-util.php';
 	}
 
 	/**

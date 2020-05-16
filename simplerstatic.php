@@ -32,7 +32,12 @@ if ( version_compare( PHP_VERSION, '7.3', '<' ) ) {
 		deactivate_plugins( __FILE__ );
 	}
 } else {
+    define( 'SIMPLERSTATIC_PATH', plugin_dir_path( __FILE__ ) );
+
+    if ( file_exists( SIMPLERSTATIC_PATH . 'vendor/autoload.php' ) ) {
+        require_once SIMPLERSTATIC_PATH . 'vendor/autoload.php';
+    }
 	// Loading up Simpler Static in a separate file so that there's nothing to
 	// trigger a PHP error in this file (e.g. by using namespacing)
-	require_once plugin_dir_path( __FILE__ ) . 'includes/load.php';
+    SimplerStatic\Plugin::instance();
 }
