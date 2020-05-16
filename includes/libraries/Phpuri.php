@@ -1,25 +1,21 @@
 <?php
-    /**
-     * A php library for converting relative urls to absolute.
-     * Website: https://github.com/monkeysuffrage/phpuri
-     *
-     * <pre>
-     * echo phpUri::parse('https://www.google.com/')->join('foo');
-     * //==> https://www.google.com/foo
-     * </pre>
-     *
-     * Licensed under The MIT License
-     * Redistributions of files must retain the above copyright notice.
-     *
-     * @author  P Guardiario <pguardiario@gmail.com>
-     * @version 1.0
-     */
+/**
+ * A php library for converting relative urls to absolute.
+ * Website: https://github.com/monkeysuffrage/phpuri
+ *
+ * <pre>
+ * echo phpUri::parse('https://www.google.com/')->join('foo');
+ * //==> https://www.google.com/foo
+ * </pre>
+ *
+ * Licensed under The MIT License
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @author  P Guardiario <pguardiario@gmail.com>
+ * @version 1.0
+ */
 
-    /**
-     * phpUri
-     */
-class phpUri {
-
+class PhpUri {
 
     /**
      * http(s)://
@@ -57,7 +53,11 @@ class phpUri {
     public $fragment;
 
     private function __construct( $string ) {
-        preg_match_all( '/^(([^:\/?#]+):)?(\/\/([^\/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?$/', $string, $m );
+        preg_match_all(
+            '/^(([^:\/?#]+):)?(\/\/([^\/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?$/',
+            $string,
+            $m
+        );
         $this->scheme    = $m[2][0];
         $this->authority = $m[4][0];
 
@@ -130,7 +130,7 @@ class phpUri {
          * @return phpUri
          */
     public static function parse( $url ) {
-        $uri = new phpUri( $url );
+        $uri = new PhpUri( $url );
 
         /**
          * CHANGE:
@@ -154,7 +154,7 @@ class phpUri {
          * @return string
          */
     public function join( $relative ) {
-        $uri = new phpUri( $relative );
+        $uri = new PhpUri( $relative );
         switch ( true ) {
             case ! empty( $uri->scheme ):
                 break;

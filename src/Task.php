@@ -36,7 +36,7 @@ abstract class Task {
      * @return void
      */
     protected function save_status_message( $message, $key = null ) {
-        $task_name = $key ?: static::$task_name;
+        $task_name = $key ? $key : static::$task_name;
         $messages = $this->options->get( 'archive_status_messages' );
         Util::debug_log( 'Status message: [' . $task_name . '] ' . $message );
 

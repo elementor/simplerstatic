@@ -19,6 +19,7 @@ class Page extends Model {
     // * @var int
     // */
     // private $http_status_code;
+
     /*
         Note: seems a conflict between the ORM.
         for now, set to private vars and ignore warnings

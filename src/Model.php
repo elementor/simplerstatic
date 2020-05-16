@@ -48,8 +48,6 @@ class Model {
      */
     protected static $primary_key = null;
 
-    /**************************************************************************/
-
     /**
      * The stored data for this instance of the model.
      *
@@ -71,6 +69,7 @@ class Model {
      *
      * @param  string $field_name The name of the field to retrieve
      * @return mixed              The value for the field
+     * @throws SimplerStaticException
      */
     public function __get( $field_name ) {
         if ( ! array_key_exists( $field_name, $this->data ) ) {
@@ -89,12 +88,16 @@ class Model {
      * @param string $field_name  The name of the field to set
      * @param mixed  $field_value The value for the field
      * @return mixed              The value of the field that was set
+     * @throws SimplerStaticException
      */
     public function __set( $field_name, $field_value ) {
         if ( ! array_key_exists( $field_name, static::$columns ) ) {
             throw new SimplerStaticException( 'Column doesn\'t exist for ' . get_called_class() );
         } else {
-            if ( ! array_key_exists( $field_name, $this->data ) || $this->data[ $field_name ] !== $field_value ) {
+            if (
+                ! array_key_exists( $field_name, $this->data ) ||
+                $this->data[ $field_name ] !== $field_value
+            ) {
                 array_push( $this->dirty_fields, $field_name );
             }
             return $this->data[ $field_name ] = $field_value;
@@ -188,7 +191,12 @@ class Model {
 
         if ( $this->exists() ) {
             $primary_key = static::$primary_key;
-            $rows_updated = $wpdb->update( self::table_name(), $fields, [ $primary_key => $this->$primary_key ] );
+            $rows_updated =
+                $wpdb->update(
+                    self::table_name(),
+                    $fields,
+                    [ $primary_key => $this->$primary_key ]
+                );
             return $rows_updated !== false;
         } else {
             $rows_updated = $wpdb->insert( self::table_name(), $fields );

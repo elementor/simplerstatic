@@ -81,7 +81,7 @@ class Url_Fetcher {
         if ( ! Util::is_local_url( $url ) ) {
             Util::debug_log( 'Not fetching URL because it is not a local URL' );
             $static_page->http_status_code = 777;
-            $message = sprintf( __( 'An error occurred: %s', 'simplerstatic' ), __( 'Attempted to fetch a remote URL', 'simplerstatic' ) );
+            $message = 'An error occurred: Attempted to fetch a remote URL';
             $static_page->set_error_message( $message );
             $static_page->save();
             return false;
@@ -96,19 +96,25 @@ class Url_Fetcher {
         Util::debug_log( 'Filesize: ' . $filesize . ' bytes' );
 
         if ( is_wp_error( $response ) ) {
-            Util::debug_log( 'We encountered an error when fetching: ' . $response->get_error_message() );
+            Util::debug_log(
+                'We encountered an error when fetching: ' . $response->get_error_message()
+            );
             Util::debug_log( $response );
             $static_page->http_status_code = 888;
-            $message = sprintf( __( 'An error occurred: %s', 'simplerstatic' ), $response->get_error_message() );
+            $message = sprintf( 'An error occurred: %s', $response->get_error_message() );
             $static_page->set_error_message( $message );
             $static_page->save();
             return false;
         } else {
             $static_page->http_status_code = (int) $response['response']['code'];
             $static_page->content_type = $response['headers']['content-type'];
-            $static_page->redirect_url = isset( $response['headers']['location'] ) ? $response['headers']['location'] : null;
+            $static_page->redirect_url =
+                isset( $response['headers']['location'] ) ? $response['headers']['location'] : null;
 
-            Util::debug_log( 'http_status_code: ' . $static_page->http_status_code . ' | content_type: ' . $static_page->content_type );
+            Util::debug_log(
+                'http_status_code: ' . $static_page->http_status_code .
+                ' | content_type: ' . $static_page->content_type
+            );
 
             $relative_filename = null;
             if ( $static_page->http_status_code == 200 ) {
@@ -124,7 +130,9 @@ class Url_Fetcher {
             if ( $relative_filename !== null ) {
                 $static_page->file_path = $relative_filename;
                 $file_path = $this->archive_dir . $relative_filename;
-                Util::debug_log( 'Renaming temp file from ' . $temp_filename . ' to ' . $file_path );
+                Util::debug_log(
+                    'Renaming temp file from ' . $temp_filename . ' to ' . $file_path
+                );
                 rename( $temp_filename, $file_path );
             } else {
                 Util::debug_log( "We weren't able to establish a filename; deleting temp file" );
@@ -184,10 +192,14 @@ class Url_Fetcher {
 
         $create_dir = wp_mkdir_p( $this->archive_dir . $relative_file_dir );
         if ( $create_dir === false ) {
-            Util::debug_log( 'Unable to create temporary directory: ' . $this->archive_dir . $relative_file_dir );
+            Util::debug_log(
+                'Unable to create temporary directory: ' .
+                $this->archive_dir . $relative_file_dir
+            );
             $static_page->set_error_message( 'Unable to create temporary directory' );
         } else {
-            $relative_filename = $relative_file_dir . $path_info['filename'] . '.' . $path_info['extension'];
+            $relative_filename =
+                $relative_file_dir . $path_info['filename'] . '.' . $path_info['extension'];
             Util::debug_log( 'New filename for static page: ' . $relative_filename );
 
             // check that file doesn't exist OR exists but is writeable

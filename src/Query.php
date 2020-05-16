@@ -172,17 +172,18 @@ class Query {
     /**
      * Update all records to set the column name equal to the value
      *
-     * string:
+     * String:
      * A single string, without additional args, is passed as-is to the query.
      * update_all( "widget_id = 2" )
      *
-     * assoc. array:
+     * Assoc. array:
      * An associative array will use the keys as fields and the values as the
      * values to be updated.
      * update_all( array( 'widget_id' => 2, 'type' => 'sprocket' ) )
      *
      * @param  mixed $arg See description
      * @return int|null   The number of rows updated, or null if failure
+     * @throws SimplerStaticException
      */
     public function update_all( $arg ) {
         if ( func_num_args() > 1 ) {
@@ -240,6 +241,7 @@ class Query {
      *
      * @param  integer $offset
      * @return self
+     * @throws SimplerStaticException
      */
     public function offset( $offset ) {
         if ( $this->limit === null ) {
@@ -264,7 +266,7 @@ class Query {
     /**
      * Add a where clause to the query
      *
-     * string:
+     * String:
      * A single string, without additional args, is passed as-is to the query.
      * where( "widget_id = 2" )
      *
@@ -281,6 +283,7 @@ class Query {
      *
      * @param  mixed $arg See description
      * @return self
+     * @throws SimplerStaticException
      */
     public function where( $arg ) {
         if ( func_num_args() == 1 ) {
@@ -303,8 +306,10 @@ class Query {
 
             if ( is_string( $condition ) ) {
                 // check that the number of args and ?'s matches
-                if ( substr_count( $condition, '?' ) != sizeof( $where_values ) ) {
-                    throw new SimplerStaticException( "Number of arguments does not match number of placeholders (?'s)" );
+                if ( substr_count( $condition, '?' ) != count( $where_values ) ) {
+                    throw new SimplerStaticException(
+                        "Number of arguments does not match number of placeholders (?'s)"
+                    );
                 } else {
                     // create a condition to add to the "where" array
                     foreach ( $where_values as $value ) {
@@ -353,16 +358,17 @@ class Query {
     /**
      * Generate a SQL query for updating records
      *
-     * string:
+     * String:
      * A single string, without additional args, is passed as-is to the query.
      * compose_update_query( "widget_id = 2" )
      *
-     * assoc. array:
+     * Assoc. array:
      * An associative array will use the keys as fields and the values as the
      * values to be updated to create a condition.
      * compose_update_query( array( 'widget_id' => 2, 'type' => 'sprocket' ) )
      *
      * @param  mixed $arg See description
+     * @throws SimplerStaticException
      */
     private function compose_update_query( $arg ) : string {
         $values = ' SET ';

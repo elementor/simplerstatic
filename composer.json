@@ -61,8 +61,7 @@
         "test": [
             "@lint",
             "@phpcs",
-            "@phpstan",
-            "@phpunit"
+            "@phpstan"
         ],
         "build": "/bin/sh tools/build_release.sh"
     }

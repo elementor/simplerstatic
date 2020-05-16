@@ -1,5 +1,9 @@
 <?php
+
 namespace SimplerStatic;
+
+use RecursiveIteratorIterator;
+use RecursiveDirectoryIterator;
 
 class Setup_Task extends Task {
 
@@ -39,7 +43,8 @@ class Setup_Task extends Task {
 
         // delete pages that we can't process
         // Page::query()
-        // ->where( 'http_status_code IS NULL OR http_status_code NOT IN (?)', implode( ',', Page::$processable_status_codes ) )
+        // ->where( 'http_status_code IS NULL OR http_status_code NOT IN (?)',
+        // implode( ',', Page::$processable_status_codes ) )
         // ->delete_all();
 
         // add origin url and additional urls/files to database
@@ -100,7 +105,12 @@ class Setup_Task extends Task {
                     $static_page->save();
                 } else {
                     Util::debug_log( 'Adding files from directory: ' . $item );
-                    $iterator = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $item, \RecursiveDirectoryIterator::SKIP_DOTS ) );
+                    $iterator = new RecursiveIteratorIterator(
+                        new RecursiveDirectoryIterator(
+                            $item,
+                            RecursiveDirectoryIterator::SKIP_DOTS
+                        )
+                    );
 
                     foreach ( $iterator as $file_name => $file_object ) {
                         $url = self::convert_path_to_url( $file_name );

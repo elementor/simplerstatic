@@ -101,7 +101,10 @@ class Plugin {
 
             // Handle AJAX requests
             // TODO: rename actions to avoid collissions
-            add_action( 'wp_ajax_static_archive_action', [ self::$instance, 'static_archive_action' ] );
+            add_action(
+                'wp_ajax_static_archive_action',
+                [ self::$instance, 'static_archive_action' ]
+            );
             add_action( 'wp_ajax_render_export_log', [ self::$instance, 'render_export_log' ] );
             add_action( 'wp_ajax_render_activity_log', [ self::$instance, 'render_activity_log' ] );
 
@@ -139,7 +142,7 @@ class Plugin {
      */
     private function includes() {
         $path = plugin_dir_path( dirname( __FILE__ ) );
-        require_once $path . 'includes/libraries/phpuri.php';
+        require_once $path . 'includes/libraries/Phpuri.php';
     }
 
     /**
@@ -149,7 +152,12 @@ class Plugin {
      */
     public function enqueue_admin_styles() {
         // Plugin admin CSS. Tack on plugin version.
-        wp_enqueue_style( self::SLUG . '-admin-styles', plugin_dir_url( dirname( __FILE__ ) ) . 'css/admin.css', [], self::VERSION );
+        wp_enqueue_style(
+            self::SLUG . '-admin-styles',
+            plugin_dir_url( dirname( __FILE__ ) ) . 'css/admin.css',
+            [],
+            self::VERSION
+        );
     }
 
     /**
@@ -160,11 +168,23 @@ class Plugin {
     public function enqueue_admin_scripts() {
         // Plugin admin JS. Tack on plugin version.
         if ( $this->current_page === 'simplerstatic' ) {
-            wp_enqueue_script( self::SLUG . '-generate-styles', plugin_dir_url( dirname( __FILE__ ) ) . 'js/admin-generate.js', [], self::VERSION );
+            wp_enqueue_script(
+                self::SLUG . '-generate-styles',
+                plugin_dir_url( dirname( __FILE__ ) ) . 'js/admin-generate.js',
+                [],
+                self::VERSION,
+                true
+            );
         }
 
         if ( $this->current_page === 'simplerstatic_settings' ) {
-            wp_enqueue_script( self::SLUG . '-settings-styles', plugin_dir_url( dirname( __FILE__ ) ) . 'js/admin-settings.js?1', [], self::VERSION );
+            wp_enqueue_script(
+                self::SLUG . '-settings-styles',
+                plugin_dir_url( dirname( __FILE__ ) ) . 'js/admin-settings.js?1',
+                [],
+                self::VERSION,
+                true
+            );
         }
     }
 
@@ -218,7 +238,7 @@ class Plugin {
      *
      * @return void
      */
-    function static_archive_action() {
+    public function static_archive_action() {
         check_ajax_referer( 'simplerstatic_generate' );
         if ( ! current_user_can( 'edit_posts' ) ) {
             die( __( 'Not permitted', 'simplerstatic' ) );
@@ -241,7 +261,7 @@ class Plugin {
     /**
      * Render json+html for response to static archive creation
      */
-    function send_json_response_for_static_archive( string $action ) : void {
+    public function send_json_response_for_static_archive( string $action ) : void {
         $done = $this->archive_creation_job->is_job_done();
         $current_task = $this->archive_creation_job->get_current_task();
 
@@ -437,7 +457,8 @@ class Plugin {
             $basic_auth_pass = trim( (string) $this->fetch_post_value( 'basic_auth_password' ) );
 
             if ( $basic_auth_user != '' && $basic_auth_pass != '' ) {
-                $http_basic_auth_digest = base64_encode( $basic_auth_user . ':' . $basic_auth_pass );
+                $http_basic_auth_digest =
+                    base64_encode( $basic_auth_user . ':' . $basic_auth_pass );
             } else {
                 $http_basic_auth_digest = null;
             }
@@ -448,12 +469,18 @@ class Plugin {
         $this->options
             ->set( 'destination_scheme', $destination_scheme )
             ->set( 'destination_host', $destination_host )
-            ->set( 'temp_files_dir', Util::trailingslashit_unless_blank( $this->fetch_post_value( 'temp_files_dir' ) ) )
+            ->set(
+                'temp_files_dir',
+                Util::trailingslashit_unless_blank( $this->fetch_post_value( 'temp_files_dir' ) )
+            )
             ->set( 'additional_urls', $this->fetch_post_value( 'additional_urls' ) )
             ->set( 'additional_files', $this->fetch_post_value( 'additional_files' ) )
             ->set( 'urls_to_exclude', $urls_to_exclude )
             ->set( 'delivery_method', $this->fetch_post_value( 'delivery_method' ) )
-            ->set( 'local_dir', Util::trailingslashit_unless_blank( $this->fetch_post_value( 'local_dir' ) ) )
+            ->set(
+                'local_dir',
+                Util::trailingslashit_unless_blank( $this->fetch_post_value( 'local_dir' ) )
+            )
             ->set( 'delete_temp_files', $this->fetch_post_value( 'delete_temp_files' ) )
             ->set( 'destination_url_type', $destination_url_type )
             ->set( 'relative_path', $relative_path )
@@ -566,7 +593,7 @@ class Plugin {
      * @param mixed[] $r request options
      * @return mixed[] request options
      */
-    function wpbp_http_request_args( array $r, string $url ) : array {
+    public function wpbp_http_request_args( array $r, string $url ) : array {
         $digest = self::$instance->options->get( 'http_basic_auth_digest' );
 
         if ( $digest ) {
@@ -598,7 +625,8 @@ class Plugin {
      * Check for a pending file download; prompt user to download file
      */
     public function download_file() : void {
-        $file_name = filter_input( INPUT_GET, self::SLUG . '_zip_download', FILTER_SANITIZE_STRING );
+        $file_name =
+            filter_input( INPUT_GET, self::SLUG . '_zip_download', FILTER_SANITIZE_STRING );
 
         if ( $file_name ) {
             if ( ! current_user_can( 'edit_posts' ) ) {
@@ -619,7 +647,11 @@ class Plugin {
             // Send file
             header( 'Content-Description: File Transfer' );
             header( 'Content-Disposition: attachment; filename=' . $file_name );
-            header( 'Content-Type: application/zip, application/octet-stream; charset=' . get_option( 'blog_charset' ), true );
+            header(
+                'Content-Type: application/zip, application/octet-stream; charset=' .
+                get_option( 'blog_charset' ),
+                true
+            );
             header( 'Content-Length: ' . filesize( $file_path ) );
             header( 'Pragma: no-cache' );
             header( 'Expires: 0' );

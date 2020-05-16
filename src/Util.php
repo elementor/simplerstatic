@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 $ppath = plugin_dir_path( dirname( __FILE__ ) );
-require_once $ppath . 'includes/libraries/phpuri.php';
+require_once $ppath . 'includes/libraries/Phpuri.php';
 
 /**
  * Simpler Static utility class
@@ -91,7 +91,9 @@ class Util {
      */
     public static function error_log( $object = null ) {
         $contents = self::get_contents_from_object( $object );
-        $this->error_log( (string) $contents );
+        // phpcs:disable
+        error_log( (string) $contents );
+        // phpcs:enable
     }
 
     /**
@@ -140,7 +142,9 @@ class Util {
         $message .= $contents . "\n";
 
         // log the message to the debug file instead of the usual error_log location
-        $this->error_log( $message, 3, $debug_file );
+        // phpcs:disable
+        error_log( $message, 3, $debug_file );
+        // phpcs:enable
     }
 
     /**
@@ -254,7 +258,7 @@ class Util {
                 '';
 
             // turn our relative url into an absolute url
-            $extracted_url = \phpUri::parse( $page_url )->join( $path . $query . $fragment );
+            $extracted_url = \PhpUri::parse( $page_url )->join( $path . $query . $fragment );
 
             return $extracted_url;
         }

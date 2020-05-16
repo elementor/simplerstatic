@@ -142,7 +142,10 @@ class Url_Extractor {
      * @return int|false
      */
     public function save_body( $content ) {
-        return file_put_contents( $this->options->get_archive_dir() . $this->static_page->file_path, $content );
+        return file_put_contents(
+            $this->options->get_archive_dir() . $this->static_page->file_path,
+            $content
+        );
     }
 
     /**
@@ -171,7 +174,11 @@ class Url_Extractor {
         }
 
         // failsafe URL replacement
-        if ( $this->static_page->is_type( 'html' ) || $this->static_page->is_type( 'css' ) || $this->static_page->is_type( 'xml' ) ) {
+        if (
+            $this->static_page->is_type( 'html' ) ||
+            $this->static_page->is_type( 'css' ) ||
+            $this->static_page->is_type( 'xml' )
+        ) {
             $this->replace_urls();
         }
 
@@ -206,13 +213,25 @@ class Url_Extractor {
         $response_body = $this->get_body();
 
         // replace any instance of the origin url, whether it starts with https://, http://, or //
-        $response_body = preg_replace( '/(https?:)?\/\/' . addcslashes( Util::origin_host(), '/' ) . '/i', $destination_url, $response_body );
+        $response_body = preg_replace(
+            '/(https?:)?\/\/' . addcslashes( Util::origin_host(), '/' ) . '/i',
+            $destination_url,
+            $response_body
+        );
         // replace wp_json_encode'd urls, as used by WP's `concatemoji`
-        // e.g. {"concatemoji":"http:\/\/www.example.org\/wp-includes\/js\/wp-emoji-release.min.js?ver=4.6.1"}
-        $response_body = str_replace( addcslashes( Util::origin_url(), '/' ), addcslashes( $destination_url, '/' ), (string) $response_body );
+        // e.g. {"concatemoji":"http:\/\/w.org\/wp-includes\/js\/wp-emoji-release.min.js?ver=4.6.1"}
+        $response_body = str_replace(
+            addcslashes( Util::origin_url(), '/' ),
+            addcslashes( $destination_url, '/' ),
+            (string) $response_body
+        );
         // replace encoded URLs, as found in query params
-        // e.g. http://example.org/wp-json/oembed/1.0/embed?url=http%3A%2F%2Fexample%2Fcurrent%2Fpage%2F"
-        $response_body = preg_replace( '/(https?%3A)?%2F%2F' . addcslashes( urlencode( Util::origin_host() ), '.' ) . '/i', urlencode( $destination_url ), $response_body );
+        // e.g. http://w.org/wp-json/oembed/1.0/embed?url=http%3A%2F%2Fexample%2Fcurrent%2Fpage%2F"
+        $response_body = preg_replace(
+            '/(https?%3A)?%2F%2F' . addcslashes( urlencode( Util::origin_host() ), '.' ) . '/i',
+            urlencode( $destination_url ),
+            $response_body
+        );
 
         $this->save_body( (string) $response_body );
     }
@@ -251,7 +270,8 @@ class Url_Extractor {
                 foreach ( $extracted_urls as $extracted_url ) {
                     if ( $extracted_url !== '' ) {
                         $updated_extracted_url = $this->add_to_extracted_urls( $extracted_url );
-                        $attribute_value = str_replace( $extracted_url, $updated_extracted_url, $attribute_value );
+                        $attribute_value =
+                            str_replace( $extracted_url, $updated_extracted_url, $attribute_value );
                     }
                 }
                 $tag->$attribute_name = $attribute_value;
@@ -317,7 +337,8 @@ class Url_Extractor {
         foreach ( explode( ',', $srcset ) as $url_and_descriptor ) {
             // remove the (optional) descriptor
             // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img#attr-srcset
-            $extracted_urls[] = trim( (string) preg_replace( '/[\d\.]+[xw]\s*$/', '', $url_and_descriptor ) );
+            $extracted_urls[] =
+                trim( (string) preg_replace( '/[\d\.]+[xw]\s*$/', '', $url_and_descriptor ) );
         }
 
         return $extracted_urls;
