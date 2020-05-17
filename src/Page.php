@@ -131,7 +131,7 @@ class Page extends Model {
         array_walk(
             $http_status_codes,
             function ( $count, $code ) use ( $rows ) {
-                return $rows[ $code ] ?? $count;
+                return $rows[ (string) $code ] ?? $count;
             }
         );
 
