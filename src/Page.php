@@ -115,7 +115,7 @@ class Page extends Model {
     /**
      * Get the number of pages for each group of status codes, e.g. 1xx, 2xx, 3xx
      *
-     * @return array<int, int> Array of status code to number of pages.
+     * @return array<string, int> Array of status code to number of pages.
      */
     public static function get_http_status_codes_summary() {
         global $wpdb;
