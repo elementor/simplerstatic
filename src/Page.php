@@ -126,16 +126,9 @@ class Page extends Model {
 
         $rows = array_column( $wpdb->get_results( $query, \ARRAY_A ), 'count', 'code' );
 
-        $http_status_codes = array_fill( 1, 8, 0 );
+        $http_status_codes = array_fill_keys( ['1', '2', '3', '4', '5', '6', '7', '8'], 0 );
 
-        array_walk(
-            $http_status_codes,
-            function ( $count, $code ) use ( $rows ) {
-                return $rows[ (string) $code ] ?? $count;
-            }
-        );
-
-        return $http_status_codes;
+        return array_merge( $http_status_codes, $rows );
     }
 
     /**
