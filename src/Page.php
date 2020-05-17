@@ -124,7 +124,7 @@ class Page extends Model {
         $query .= ' FROM ' . self::table_name();
         $query .= ' GROUP BY code';
 
-        $rows = $wpdb->get_results( $query, \ARRAY_A );
+        $rows = array_column( $wpdb->get_results( $query, \ARRAY_A ), 'count', 'code' );
 
         $http_status_codes = array_fill( 1, 8, 0 );
 
