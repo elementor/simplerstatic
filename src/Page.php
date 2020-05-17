@@ -10,53 +10,56 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Simpler Static Page class, for tracking the status of pages / static files
  */
 class Page extends Model {
-    // TODO: not able to set these props without issues
-    // /**
-    // * @var string
-    // */
-    // private $url;
-    // /**
-    // * @var int
-    // */
-    // private $http_status_code;
+    /**
+     * @var string
+     */
+    public $url;
 
-    /*
-        Note: seems a conflict between the ORM.
-        for now, set to private vars and ignore warnings
-        when working with instance vars
-    */
+    /**
+     * @var int
+     */
+    public $http_status_code;
+
     /**
      * @var string
      */
     private $found_on_id;
+
     /**
      * @var string
      */
     private $content_hash;
+
     /**
      * @var string
      */
-    private $last_checked_at;
+    public $last_checked_at;
+
     /**
      * @var string
      */
     private $last_modified_at;
+
     /**
      * @var string
      */
     public $content_type;
+
     /**
      * @var string
      */
     public $redirect_url;
+
     /**
      * @var string|null
      */
     public $file_path;
+
     /**
      * @var string
      */
     private $status_message;
+
     /**
      * @var string
      */
@@ -78,7 +81,7 @@ class Page extends Model {
     protected static $table_name = 'pages';
 
     /**
-     * @var mixed[]
+     * @var array<string, string>
      */
     protected static $columns = [
         'id'                  => 'BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT',
