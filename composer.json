@@ -36,12 +36,6 @@
             "SimplerStatic\\": "src/"
         }
     },
-    "autoload-dev": {
-        "psr-4": {
-            "PHPStan\\WordPress\\": "tests/phpstan/",
-            "SimplerStatic\\": "src/"
-        }
-    },
     "config": {
         "platform": {
           "php": "7.3"
