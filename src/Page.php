@@ -115,37 +115,20 @@ class Page extends Model {
     /**
      * Get the number of pages for each group of status codes, e.g. 1xx, 2xx, 3xx
      *
-     * @return mixed[] Assoc. array of status code to number of pages, e.g. '2' => 183
+     * @return array<string, int> Array of status code to number of pages.
      */
     public static function get_http_status_codes_summary() {
         global $wpdb;
 
-        $query = 'SELECT LEFT(http_status_code, 1) AS status, COUNT(*) AS count';
+        $query = 'SELECT LEFT(http_status_code, 1) AS code, COUNT(*) AS count';
         $query .= ' FROM ' . self::table_name();
-        $query .= ' GROUP BY LEFT(http_status_code, 1)';
-        $query .= ' ORDER BY status';
+        $query .= ' GROUP BY code';
 
-        $rows = $wpdb->get_results(
-            $query,
-            ARRAY_A
-        );
+        $rows = array_column( $wpdb->get_results( $query, \ARRAY_A ), 'count', 'code' );
 
-        $http_codes = [
-            '1' => 0,
-            '2' => 0,
-            '3' => 0,
-            '4' => 0,
-            '5' => 0,
-            '6' => 0,
-            '7' => 0,
-            '8' => 0,
-        ];
+        $http_status_codes = array_fill_keys( ['1', '2', '3', '4', '5', '6', '7', '8'], 0 );
 
-        foreach ( $rows as $row ) {
-            $http_codes[ $row['status'] ] = $row['count'];
-        }
-
-        return $http_codes;
+        return array_merge( $http_status_codes, $rows );
     }
 
     /**
