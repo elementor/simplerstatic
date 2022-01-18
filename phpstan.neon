@@ -11,9 +11,6 @@ parameters:
         - %currentWorkingDirectory%/tests/phpstan/bootstrap.php
         - %currentWorkingDirectory%/tests/phpstan/wp-cli-stubs-2.2.0.php
     ignoreErrors:
-        - '#^Access to an undefined property SimplerStatic\\Page::\$url#'
-        - '#^Access to an undefined property SimplerStatic\\Page::\$http_status_code#'
-        - '#^Access to private property SimplerStatic\\Page::\$last_checked_at#'
         - '#^Call to an undefined method SimplerStatic\\Query::save\(\)#'
         - '#^Call to an undefined method SimplerStatic\\Query::set_status_message\(\)#'
         - '#^Access to an undefined property SimplerStatic\\Query::\$found_on_id#'
@@ -21,7 +18,5 @@ parameters:
         - '#^Access to an undefined property SimplerStatic\\Model::\$id#'
         - '#^Access to an undefined property SimplerStatic\\Model::\$updated_at#'
         - '#^Access to an undefined property SimplerStatic\\Model::\$created_at#'
-        - '#^Access to an undefined property SimplerStatic\\Page::\$id#'
         - '#^Access to an undefined property SimplerStatic\\Fetch_Urls_Task::\$archive_dir#'
         - '#^Access to an undefined property SimplerStatic\\Fetch_Urls_Task::\$archive_start_time#'
-    excludes_analyse:
